@@ -1,4 +1,3 @@
-var schedule_url = window.location.href;
 var post_url = "https://sqc1z962y5.execute-api.us-east-2.amazonaws.com/dev/schedule/"
 var userType = ""; // organizer, participant, init
 var secretcode = "";
@@ -8,6 +7,7 @@ var scheduleid = "";
 
 function getView(){
   // Depending on URL, gets the type of view - Create Schedule or Review Schedule
+  var schedule_url = window.location.href;
   var n = schedule_url.indexOf(".html?");
   var createMode = document.getElementById("createMode");
   var reviewMode = document.getElementById("reviewMode");
@@ -119,8 +119,19 @@ function createSchedule(obj) {
 			scheduleid = this.response.schedule_id;
 			console.log(this.response);
 			alert("Calendar Successfully Created!\nSecret Code is: "+ secretcode);
-      window.location.href = window.location.href + '?' + scheduleid; // Hopefluly this doesn't reload the page
+
+      // doesn't refresh the page
+      if (history.pushState){
+        var newurl = window.location.origin + window.location.pathname + "?" + scheduleid;
+        window.history.pushState({path:newurl}, '', newurl);
+      }
+
+      // changes the view to review
+      getView();
       getSchedule();
+
+      // adds secret code to text field
+      document.getElementById("secretCode").value = secretcode;
 		}else{
 			alert(this.response.message);
 			return false;
