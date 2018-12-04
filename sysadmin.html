@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<style>
+	#sysadminAccess {
+		display:none;
+	}
+</style>
+<head>
+	<!-- meta charset -->
+	<title>Scheduler App - SysAdmin</title>
+	<!-- css -->
+	<script src="sysadminScript.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+</head>
+
+<body>
+
+	<div>
+		<h1>Sys Admin</h1>
+	</div>
+
+	<div>
+		<form name= "loginForm" onsubmit="return validateCode()">
+			<fieldset>
+				<legend>Login</legend>
+				Secret Code: <input type="text" name="secretCode" required>
+				<button type="submit">Login</button>
+			</fieldset>
+		</form>
+	</div>
+
+	<br>
+
+	<div id="sysadminAccess">
+
+		<div id="deleteForm">
+			<form name="deleteSchedulesForm">
+				<fieldset>
+						<legend>Delete Old Activity</legend>
+						Days Old: <input type="number" name="daysOldSchedule">
+						<button type="submit">Delete Schedules</button>
+				</fieldset>
+			</form>
+		</div>
+
+		<br>
+
+		<div id="reportForm">
+			<form name="reportActivityForm">
+				<fieldset>
+					<legend>Report Activity</legend>
+					Hours: <input type="number" name="hoursCreatedSchedule">
+					<button type="submit">Get Schedule List</button>
+				</fieldset>
+			</form>
+		</div>
+
+		<div id="scheduleList">
+			<!--
+			Create a table with X schedules created in past N hours
+			-->
+		</div>
+
+		<br>
+
+	</div>
+
+	<div>
+		<a href="index.html">
+			<button type="button">Home</button>
+		</a>
+	</div>
+
+</body>
+</html>

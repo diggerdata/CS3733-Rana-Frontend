@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html>
+<style>
+
+	.slot-btn {
+		display: block;
+		margin: auto;
+    background: transparent;
+    border: none !important;
+		width: 100%;
+	}
+
+	.cal-btn, #hideCal, #showCal, #calendarView {
+		display:none;
+	}
+
+	#toggleBtn, #cancelBtn {
+		disabled: false;
+	}
+
+	.availableSlot:hover {
+		background-color: limegreen;
+		/* cursor: pointer; */
+	}
+
+	/* td:hover, th:hover {
+		cursor: pointer;
+	} */
+
+	.availableSlot {
+		background-color: lightgreen;
+	}
+
+	.unavailableSlot {
+		background-color: red;
+	}
+
+	#organizerView, #participantView {
+		display: none;
+	}
+</style>
+<head>
+	<!-- meta charset -->
+	<title>Scheduler App - Review</title>
+	<!-- css -->
+	<script src="reviewScript.js"></script>
+	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css" integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">
+	<!-- <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.0/build/pure-min.css" integrity="sha384-nn4HPE8lTHyVtfCBi5yW9d20FjT8BJwUXyWZT9InLYax14RDjBj46LmSztkmNP9w" crossorigin="anonymous"> -->
+	<!-- Compiled and minified CSS -->
+  <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css"> -->
+
+</head>
+
+<body onload="getSchedule()">
+
+	<div>
+		<h1 id="scheduleName"></h1>
+	</div>
+
+	<div>
+		<form id="secretCodeForm" name= "secretCodeForm" onsubmit="return validateUser()">
+			<fieldset>
+				<legend>Secret Code</legend>
+				<input id="secretCode" type="text" placeholder="Secret Code" required>
+				<button type ="submit">Submit</button>
+			</fieldset>
+		</form>
+	</div>
+
+	<br>
+
+	<div>
+		<button id="showCal" type="button" name="showCalendar" onclick="return toggleCalendar(true)">Show Calendar</button>
+		<button id="hideCal" type="button" name="hideCalendar" onclick="return toggleCalendar(false)">Hide Calendar</button>
+		<button class= "cal-btn" type="button" name="previousWeek" onclick="previousWeek()">Previous</button>
+		<button class= "cal-btn" type="button" name="nextWeek" onclick="nextWeek()">Next</button>
+	</div>
+
+	<br>
+
+	<div id="calendarView">
+		<table id="calendar" border="0">
+			<thead id="calendarHead">
+				<th>Time</th>
+				<th>Monday</th>
+				<th>Tuesday</th>
+				<th>Wednesday</th>
+				<th>Thursday</th>
+				<th>Friday</th>
+			</thead>
+			<tbody id="calendarBody">
+				<!-- Add body -->
+			</tbody>
+		</table>
+	</div>
+
+	<br>
+
+	<div id="initView">
+		<!-- Initial View when entering the site.. everyone's a participant until entering the secret code -->
+		<div>
+			<form name= "createMeetingForm">
+				<fieldset>
+					<legend>Create Meeting</legend>
+					Name: <input type="text" name="userName" placeholder="User Name">
+					<!--
+						Need to have an empty timeslot selected
+					-->
+					<!-- <button type="submit">Set Meeting</button> -->
+				</fieldset>
+			</form>
+		</div>
+
+		<br>
+
+		<div>
+			<form name="searchTimeSlotForm">
+				<fieldset>
+					<legend>Search for TimeSlots</legend>
+					Year: <select></select>
+					Month: <select></select>
+					Weekday: <select></select>
+					Day: <select></select>
+					Hour: <select></select>
+					<button type="submit">Find TimeSlots</button>
+				</fieldset>
+			</form>
+			<p>Time slot search goes here</p>
+			<!--
+				Should be able to search for time slots using a filters
+			-->
+		</div>
+	</div>
+
+	<div id="organizerView">
+		<!-- Organizer View when Organizer enters correct secret code -->
+
+		<!-- <div id="shareBtn">
+			<button type="button">Share</button>
+		</div> -->
+
+		<div id="extenddatesID">
+			<form name="extendDates">
+				<fieldset>
+					<legend>Extend Dates</legend>
+					<!--
+						Place current start date and end date as place holders?
+					-->
+					Start Date: <input type="date" name="startDate">
+					End Date: <input type="date" name="endDate">
+					<button type="submit">Extend</button>
+				</fieldset>
+			</form>
+		</div>
+
+		<br>
+
+		<div>
+			<button id="toggleBtn" type="button">Toggle Availability</button>
+			<!-- <button id="busyBtn" type="button">Busy</button>
+			<button id="freeBtn" type="button">Free</button> -->
+		</div>
+
+		<br>
+
+		<div>
+			<button id="cancelBtn" type="button">Cancel Meeting</button>
+		</div>
+
+		<br>
+
+		<div>
+			<button type="button" name="deleteSchedule" onclick="deleteSchedule()">Delete Schedule</button>
+		</div>
+
+	</div>
+
+	<div id="participantView">
+		<!-- Participant View when Participant enters correct secret code -->
+		<div>
+			<!--
+				Need to have a meeting selected
+			-->
+			<button type="button">Cancel Meeting</button>
+		</div>
+
+	</div>
+
+</body>
+</html>
