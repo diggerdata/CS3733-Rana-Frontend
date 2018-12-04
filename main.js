@@ -64,7 +64,7 @@ function validateScheduleCreation() {
 	if (e_date < s_date) {
 		alert("End date can't be less than start date!");
 		return false;
-	} else if (e_date == s_date && e_time <= s_time) {
+	} else if (e_time <= s_time) {
 		alert("Start time cannot be greater than or equal to the end time!");
 		return false;
 	}
@@ -187,8 +187,8 @@ function getSchedule(){
 
     // TODO fix request to send 400 error if ID + authorization are incorrect
 		if (request.status >= 200 && request.status < 400 && data.status != "fail") {
-      var scheduleName = document.getElementById("scheduleName");
-      scheduleName.innerText = data.name;
+      var rScheduleName = document.getElementById("rScheduleName");
+      rScheduleName.innerHTML = data.name;
       var showCal = document.getElementById("showCal");
       showCal.style.display = "block";
     } else {
@@ -256,20 +256,16 @@ function showTimeSlots() {
 	var request = new XMLHttpRequest();
 
 	// Make GET request
-	// request.open('GET', 'https://sqc1z962y5.execute-api.us-east-2.amazonaws.com/dev/schedule/2?week=2011-04-18T00:00:00.00Z', true);
-	// request.setRequestHeader('Authorization', 'ywoAcCBGpM');
   request.open('GET', 'https://sqc1z962y5.execute-api.us-east-2.amazonaws.com/dev/schedule/'+scheduleid, true);
-	// console.log('https://sqc1z962y5.execute-api.us-east-2.amazonaws.com/dev/schedule/'+id);
-	// request.open('GET', 'https://sqc1z962y5.execute-api.us-east-2.amazonaws.com/dev/schedule/'+id, true);
-	// request.setRequestHeader('Authorization', schedulecode);
-	// console.log('OPENED', request.status);
 	request.onload = function () {
-		// console.log('DONE', request.status);
 		// Access JSON data
 		var data = JSON.parse(this.response);
 		console.log(data);
 
-    // TODO: Hour Time is incorrect...
+    // get day of first time slot to determine where it gets placeholder
+    var startDay = (new Date(data.timeslots[0].start_date)).getDay(); // Mon = 1; Tue = 2; Wed = 3; Thur = 4; Fri = 5
+
+
 		if (request.status >= 200 && request.status < 400) {
 			var calenderBody = document.getElementById("calendarBody");
 
@@ -277,12 +273,15 @@ function showTimeSlots() {
 			// Then for each of the days in the week (Mon-Fri), add the TimeSlot's availability to a new cell in the table
 			for (colNum = 0; colNum < 6; colNum++) {
 				// In the first column, add the time
-				if (colNum == 0) {
-					// Keep track of the slots that have been used so far
-					var slot = 0;
+        // Calculate the maximum number of rows, based on the number of TimeSlots per day
+        var dayHours = data.end_time - data.start_time;
+        var timeSlotsInHour = data.duration/60;
+        var maxRow = dayHours/timeSlotsInHour; // time slots per day
 
-					// Calculate the maximum number of rows, based on the number of TimeSlots per day
-					var maxRow = data.timeslots.length / 5;
+        // Keep track of the slots that have been used so far
+        var slot = 0;
+
+				if (colNum == 0) {
 
 					// For each row in the table, fill in the timeslot data
 					for (rowNum = 0; rowNum < maxRow; rowNum++) {
@@ -307,15 +306,14 @@ function showTimeSlots() {
 					slot = 0;
 				} else {
 					// For each row in the table, add the TimeSlots for the current column
+          console.log(colNum);
 					for (rowNum = 0; rowNum < maxRow; rowNum++) {
 						// Create a new cell <td> element at the current row and column
 						var cell = calendarBody.rows[rowNum].insertCell(colNum);
-            // var btn = document.createElement('timeSlotInput');
-            // btn.type = "button";
-            // btn.className = "timeslot-btn btn";
-            // btn.value = data.timeslots[slot].id;
-            // cell.appendChild(btn);
-            // calendarBody.rows[rowNum].cells[colNum].appendChild(btn);
+
+            if (colNum < startDay) {
+              continue;
+            }
 
 						// Set the cell's contents
             // TODO: Find a way to not show the innerHTML tag, but have it available to collect when selecting the cell
