@@ -58,9 +58,10 @@ function validateScheduleCreation() {
 	formData.append('username', username);
 	formData.append('email', email);
 
-	for (var value of formData.entries()) {
-	   console.log(value);
-	}
+	// Help Code
+	// for (var value of formData.entries()) {
+	//    console.log(value);
+	// }
 
 	var object = {};
 	for (const [key, value]  of formData.entries()) {
@@ -70,6 +71,11 @@ function validateScheduleCreation() {
 		}
 	}
 
+	return createSchedule(object);
+
+}
+
+function createSchedule(obj) {
 	var request = new XMLHttpRequest();
 
 	request.responseType = "json";
@@ -81,16 +87,15 @@ function validateScheduleCreation() {
 			secretcode = this.response.secret_code;
 			scheduleid = this.response.schedule_id;
 			console.log(this.response);
-			alert("Calendar Created\nSecret Code is: "+this.response.secret_code);
-			// window.location.replace("review.html?"+secretcode+""+scheduleid);
-			return false;
+			alert("Calendar Successfully Created!\nSecret Code is: "+this.response.secret_code);
+			window.location.replace("review.html?"+scheduleid);
 		}else{
 			alert(this.response.message);
 			return false;
 		}
 	};
 
-	request.send(JSON.stringify(object));
+	request.send(JSON.stringify(obj));
 
 	return false;
 }

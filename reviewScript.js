@@ -1,22 +1,21 @@
 var schedule_url = window.location.href;
 var user = "";
 // var schedulecode = "";
-// var id = "";
+var id = "";
 //
 // var secretcode = "";
-// validatePage();
+validatePage();
 
-// function validatePage(){
-// 	var n = schedule_url.indexOf(".html?");
-// 	if (n < 0){
-// 		alert("Need to have a secret code to review any schedule!");
-// 		window.location.replace("schedule.html");
-// 	} else {
-// 		var index = n+6;
-// 		schedulecode = schedule_url.substring(index, index+10);
-// 		id = schedule_url.substring(index+10);
-// 	}
-// }
+function validatePage(){
+	var n = schedule_url.indexOf(".html?");
+	if (n < 0){
+		alert("Can't view schedule without schedule ID!");
+		// window.location.replace("schedule.html");
+	} else {
+		var index = n+6;
+		id = schedule_url.substring(index);
+	}
+}
 
 
 function tableFunction(){
@@ -59,8 +58,9 @@ function selectSlot(id){
 
 function getSchedule(){
   var request = new XMLHttpRequest();
-	request.open('GET', 'https://sqc1z962y5.execute-api.us-east-2.amazonaws.com/dev/schedule/2?week=2011-04-18T00:00:00.00Z', true);
-	request.setRequestHeader('Authorization', 'ywoAcCBGpM');
+  request.open('GET', 'https://sqc1z962y5.execute-api.us-east-2.amazonaws.com/dev/schedule/'+id, true);
+	// request.open('GET', 'https://sqc1z962y5.execute-api.us-east-2.amazonaws.com/dev/schedule/2?week=2011-04-18T00:00:00.00Z', true);
+	// request.setRequestHeader('Authorization', 'ywoAcCBGpM');
   request.onload = function () {
 		var data = JSON.parse(this.response);
 		console.log(data);
@@ -137,8 +137,9 @@ function showTimeSlots() {
 	var request = new XMLHttpRequest();
 
 	// Make GET request
-	request.open('GET', 'https://sqc1z962y5.execute-api.us-east-2.amazonaws.com/dev/schedule/2?week=2011-04-18T00:00:00.00Z', true);
-	request.setRequestHeader('Authorization', 'ywoAcCBGpM');
+	// request.open('GET', 'https://sqc1z962y5.execute-api.us-east-2.amazonaws.com/dev/schedule/2?week=2011-04-18T00:00:00.00Z', true);
+	// request.setRequestHeader('Authorization', 'ywoAcCBGpM');
+  request.open('GET', 'https://sqc1z962y5.execute-api.us-east-2.amazonaws.com/dev/schedule/'+id, true);
 	// console.log('https://sqc1z962y5.execute-api.us-east-2.amazonaws.com/dev/schedule/'+id);
 	// request.open('GET', 'https://sqc1z962y5.execute-api.us-east-2.amazonaws.com/dev/schedule/'+id, true);
 	// request.setRequestHeader('Authorization', schedulecode);
