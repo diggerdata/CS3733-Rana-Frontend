@@ -36,17 +36,24 @@ function validateScheduleCreation() {
 	// creates javascript date format
 	if (s_time < 10) {
 		s_time = "0"+s_time;
-	} else if (e_time < 10) {
+	}
+
+	if (e_time < 10) {
 		e_time = "0"+e_time;
 	}
 
-	var startDate = s_date+"T"+s_time+":00:00.00Z";
-	var endDate = e_date+"T"+e_time+":00:00.00Z";
+	// Local Time
+	var startDate = new Date(s_date+"T"+s_time+":00:00.00");
+	var endDate = new Date(e_date+"T"+e_time+":00:00.00");
+
+	// To UTC Time for Server
+	var utcStartDate = startDate.toISOString();
+	var utcEndDate = endDate.toISOString();
 
 	var formData = new FormData();
 	formData.append('name', schedulename);
-	formData.append('start_date', startDate);
-	formData.append('end_date', endDate);
+	formData.append('start_date', utcStartDate);
+	formData.append('end_date', utcEndDate);
 	formData.append('duration', parseInt(slotduration));
 	formData.append('username', username);
 	formData.append('email', email);
@@ -75,7 +82,8 @@ function validateScheduleCreation() {
 			scheduleid = this.response.schedule_id;
 			console.log(this.response);
 			alert("Calendar Created\nSecret Code is: "+this.response.secret_code);
-			window.location.replace("review.html?"+secretcode+""+scheduleid);
+			// window.location.replace("review.html?"+secretcode+""+scheduleid);
+			return false;
 		}else{
 			alert(this.response.message);
 			return false;
@@ -83,9 +91,6 @@ function validateScheduleCreation() {
 	};
 
 	request.send(JSON.stringify(object));
-	// if (request.send(JSON.stringify(object))) {
-
-	// }
 
 	return false;
 }
