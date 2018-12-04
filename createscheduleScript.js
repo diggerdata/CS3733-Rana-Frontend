@@ -42,13 +42,18 @@ function validateScheduleCreation() {
 		e_time = "0"+e_time;
 	}
 
-	var startDate = s_date+"T"+s_time+":00:00.00Z";
-	var endDate = e_date+"T"+e_time+":00:00.00Z";
+	// Local Time
+	var startDate = new Date(s_date+"T"+s_time+":00:00.00");
+	var endDate = new Date(e_date+"T"+e_time+":00:00.00");
+
+	// To UTC Time for Server
+	var utcStartDate = startDate.toISOString();
+	var utcEndDate = endDate.toISOString();
 
 	var formData = new FormData();
 	formData.append('name', schedulename);
-	formData.append('start_date', startDate);
-	formData.append('end_date', endDate);
+	formData.append('start_date', utcStartDate);
+	formData.append('end_date', utcEndDate);
 	formData.append('duration', parseInt(slotduration));
 	formData.append('username', username);
 	formData.append('email', email);
