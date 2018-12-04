@@ -54,7 +54,7 @@ function validateScheduleCreation() {
 	var email = document.getElementById("userEmail").value;
 
   // Checks that dates are weekdays
-  // TODO: Verification to check that dates chosen are weekdays 
+  // TODO: Verification to check that dates chosen are weekdays
 
 	// changes time to 24 hr time
 	if (s_time_type == "PM" && s_time < 12) {
@@ -205,6 +205,8 @@ function getSchedule(){
 
     // TODO fix request to send 400 error if ID + authorization are incorrect
 		if (request.status >= 200 && request.status < 400 && data.status != "fail") {
+      var reviewView = document.getElementById("reviewView");
+      reviewView.style.display = "block";
       var rScheduleName = document.getElementById("rScheduleName");
       rScheduleName.innerHTML = data.name;
       var showCal = document.getElementById("showCal");
@@ -374,7 +376,22 @@ function deleteSchedule() {
 	var answer = confirm("Are you sure you want to delete this schedule?");
 	if (answer) {
 		// schedule is deleted and returns back to home page
-		window.location.href = "index.html";
+    var request = new XMLHttpRequest();
+    request.open('DELETE', 'https://sqc1z962y5.execute-api.us-east-2.amazonaws.com/dev/schedule/'+scheduleid, true);
+  	request.setRequestHeader('Authorization', secretcode);
+    request.onload = function () {
+  		var data = JSON.parse(this.response);
+  		console.log(data);
+
+      // TODO fix request to send 400 error if ID + authorization are incorrect
+  		if (request.status >= 200 && request.status < 400) {
+        alert("Schedule Deleted!");
+        window.location.href = "index.html";
+      }
+
+  	}
+
+  	request.send();
 		return false;
 	} else {
 		// nothing
