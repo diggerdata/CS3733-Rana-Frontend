@@ -1,4 +1,3 @@
-var schedule_url = window.location.href;
 var post_url = "https://sqc1z962y5.execute-api.us-east-2.amazonaws.com/dev/schedule/"
 var userType = ""; // organizer, participant, init
 var secretcode = "";
@@ -8,6 +7,7 @@ var scheduleid = "";
 
 function getView(){
   // Depending on URL, gets the type of view - Create Schedule or Review Schedule
+  var schedule_url = window.location.href;
   var n = schedule_url.indexOf(".html?");
   var createMode = document.getElementById("createMode");
   var reviewMode = document.getElementById("reviewMode");
@@ -53,10 +53,15 @@ function validateScheduleCreation() {
 	var username = document.getElementById("userName").value;
 	var email = document.getElementById("userEmail").value;
 
+  // Checks that dates are weekdays
+  // TODO: Verification to check that dates chosen are weekdays 
+
 	// changes time to 24 hr time
 	if (s_time_type == "PM" && s_time < 12) {
 		s_time = parseInt(s_time) + 12;
-	} else if (e_time_type == "PM" && e_time < 12) {
+	}
+
+  if (e_time_type == "PM" && e_time < 12) {
 		e_time = parseInt(e_time) + 12;
 	}
 
@@ -64,7 +69,7 @@ function validateScheduleCreation() {
 	if (e_date < s_date) {
 		alert("End date can't be less than start date!");
 		return false;
-	} else if (e_date == s_date && e_time <= s_time) {
+	} else if (e_time <= s_time) {
 		alert("Start time cannot be greater than or equal to the end time!");
 		return false;
 	}
@@ -119,8 +124,21 @@ function createSchedule(obj) {
 			scheduleid = this.response.schedule_id;
 			console.log(this.response);
 			alert("Calendar Successfully Created!\nSecret Code is: "+ secretcode);
-      window.location.href = window.location.href + '?' + scheduleid; // Hopefluly this doesn't reload the page
+
+      // doesn't refresh the page
+      if (history.pushState){
+        var newurl = window.location.origin + window.location.pathname + "?" + scheduleid;
+        window.history.pushState({path:newurl}, '', newurl);
+      }
+
+      // changes the view to review
+      userType = "organizer";
+      getView();
+      validateUser();
       getSchedule();
+
+      // adds secret code to text field
+      document.getElementById("secretCode").value = secretcode;
 		}else{
 			alert(this.response.message);
 			return false;
@@ -164,7 +182,7 @@ function selectSlot(id){
   var username = document.forms["createMeetingForm"]["userName"].value;
 
   // TODO: Allow Organizer to make slots busy or free by clicking on the slot
-  if (user == "organizer"){
+  if (userType == "organizer"){
     return;
   }
 
@@ -187,8 +205,8 @@ function getSchedule(){
 
     // TODO fix request to send 400 error if ID + authorization are incorrect
 		if (request.status >= 200 && request.status < 400 && data.status != "fail") {
-      var scheduleName = document.getElementById("scheduleName");
-      scheduleName.innerText = data.name;
+      var rScheduleName = document.getElementById("rScheduleName");
+      rScheduleName.innerHTML = data.name;
       var showCal = document.getElementById("showCal");
       showCal.style.display = "block";
     } else {
@@ -206,17 +224,17 @@ function validateUser(){
   var organizer = document.getElementById("organizerView");
   var inituser = document.getElementById("initView");
   if (secretcode == "participant") { // Edit Meeting
-    user = "participant";
+    userType = "participant";
     organizer.style.display = "none";
     inituser.style.display = "block";
     participant.style.display = "block";
-  } else if (secretcode == "organizer"){ // Edit Schedule
-    user = "organizer";
+  } else if (userType == "organizer" || secretcode == "organizer"){ // Edit Schedule
+    userType = "organizer";
     participant.style.display = "none";
     inituser.style.display = "none";
     organizer.style.display = "block";
   } else {
-    user = "";
+    userType = "";
     alert("Incorrect Code");
   }
   return false;
@@ -256,20 +274,16 @@ function showTimeSlots() {
 	var request = new XMLHttpRequest();
 
 	// Make GET request
-	// request.open('GET', 'https://sqc1z962y5.execute-api.us-east-2.amazonaws.com/dev/schedule/2?week=2011-04-18T00:00:00.00Z', true);
-	// request.setRequestHeader('Authorization', 'ywoAcCBGpM');
   request.open('GET', 'https://sqc1z962y5.execute-api.us-east-2.amazonaws.com/dev/schedule/'+scheduleid, true);
-	// console.log('https://sqc1z962y5.execute-api.us-east-2.amazonaws.com/dev/schedule/'+id);
-	// request.open('GET', 'https://sqc1z962y5.execute-api.us-east-2.amazonaws.com/dev/schedule/'+id, true);
-	// request.setRequestHeader('Authorization', schedulecode);
-	// console.log('OPENED', request.status);
 	request.onload = function () {
-		// console.log('DONE', request.status);
 		// Access JSON data
 		var data = JSON.parse(this.response);
 		console.log(data);
 
-    // TODO: Hour Time is incorrect...
+    // get day of first time slot to determine where it gets placeholder
+    var startDay = (new Date(data.timeslots[0].start_date)).getDay(); // Mon = 1; Tue = 2; Wed = 3; Thur = 4; Fri = 5
+    var endDay = (new Date(data.timeslots[data.timeslots.length - 1].start_date)).getDay();
+
 		if (request.status >= 200 && request.status < 400) {
 			var calenderBody = document.getElementById("calendarBody");
 
@@ -277,12 +291,15 @@ function showTimeSlots() {
 			// Then for each of the days in the week (Mon-Fri), add the TimeSlot's availability to a new cell in the table
 			for (colNum = 0; colNum < 6; colNum++) {
 				// In the first column, add the time
-				if (colNum == 0) {
-					// Keep track of the slots that have been used so far
-					var slot = 0;
+        // Calculate the maximum number of rows, based on the number of TimeSlots per day
+        var dayHours = data.end_time - data.start_time;
+        var timeSlotsInHour = data.duration/60;
+        var maxRow = dayHours/timeSlotsInHour; // time slots per day
 
-					// Calculate the maximum number of rows, based on the number of TimeSlots per day
-					var maxRow = data.timeslots.length / 5;
+        // Keep track of the slots that have been used so far
+        var slot = 0;
+
+				if (colNum == 0) {
 
 					// For each row in the table, fill in the timeslot data
 					for (rowNum = 0; rowNum < maxRow; rowNum++) {
@@ -304,18 +321,19 @@ function showTimeSlots() {
 						// Increment the current slot counter
 						slot++;
 					}
-					slot = 0;
 				} else {
 					// For each row in the table, add the TimeSlots for the current column
 					for (rowNum = 0; rowNum < maxRow; rowNum++) {
 						// Create a new cell <td> element at the current row and column
 						var cell = calendarBody.rows[rowNum].insertCell(colNum);
-            // var btn = document.createElement('timeSlotInput');
-            // btn.type = "button";
-            // btn.className = "timeslot-btn btn";
-            // btn.value = data.timeslots[slot].id;
-            // cell.appendChild(btn);
-            // calendarBody.rows[rowNum].cells[colNum].appendChild(btn);
+
+            if (colNum < startDay) {
+              continue;
+            }
+
+            if (colNum > endDay) {
+              continue;
+            }
 
 						// Set the cell's contents
             // TODO: Find a way to not show the innerHTML tag, but have it available to collect when selecting the cell
