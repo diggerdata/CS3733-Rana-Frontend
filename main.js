@@ -53,10 +53,15 @@ function validateScheduleCreation() {
 	var username = document.getElementById("userName").value;
 	var email = document.getElementById("userEmail").value;
 
+  // Checks that dates are weekdays
+  // TODO: Verification to check that dates chosen are weekdays 
+
 	// changes time to 24 hr time
 	if (s_time_type == "PM" && s_time < 12) {
 		s_time = parseInt(s_time) + 12;
-	} else if (e_time_type == "PM" && e_time < 12) {
+	}
+
+  if (e_time_type == "PM" && e_time < 12) {
 		e_time = parseInt(e_time) + 12;
 	}
 
