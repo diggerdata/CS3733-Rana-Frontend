@@ -127,7 +127,9 @@ function createSchedule(obj) {
       }
 
       // changes the view to review
+      userType = "organizer";
       getView();
+      validateUser();
       getSchedule();
 
       // adds secret code to text field
@@ -175,7 +177,7 @@ function selectSlot(id){
   var username = document.forms["createMeetingForm"]["userName"].value;
 
   // TODO: Allow Organizer to make slots busy or free by clicking on the slot
-  if (user == "organizer"){
+  if (userType == "organizer"){
     return;
   }
 
@@ -217,17 +219,17 @@ function validateUser(){
   var organizer = document.getElementById("organizerView");
   var inituser = document.getElementById("initView");
   if (secretcode == "participant") { // Edit Meeting
-    user = "participant";
+    userType = "participant";
     organizer.style.display = "none";
     inituser.style.display = "block";
     participant.style.display = "block";
-  } else if (secretcode == "organizer"){ // Edit Schedule
-    user = "organizer";
+  } else if (userType == "organizer" || secretcode == "organizer"){ // Edit Schedule
+    userType = "organizer";
     participant.style.display = "none";
     inituser.style.display = "none";
     organizer.style.display = "block";
   } else {
-    user = "";
+    userType = "";
     alert("Incorrect Code");
   }
   return false;
@@ -275,7 +277,7 @@ function showTimeSlots() {
 
     // get day of first time slot to determine where it gets placeholder
     var startDay = (new Date(data.timeslots[0].start_date)).getDay(); // Mon = 1; Tue = 2; Wed = 3; Thur = 4; Fri = 5
-
+    var endDay = (new Date(data.timeslots[data.timeslots.length - 1].start_date)).getDay();
 
 		if (request.status >= 200 && request.status < 400) {
 			var calenderBody = document.getElementById("calendarBody");
@@ -314,15 +316,17 @@ function showTimeSlots() {
 						// Increment the current slot counter
 						slot++;
 					}
-					slot = 0;
 				} else {
 					// For each row in the table, add the TimeSlots for the current column
-          console.log(colNum);
 					for (rowNum = 0; rowNum < maxRow; rowNum++) {
 						// Create a new cell <td> element at the current row and column
 						var cell = calendarBody.rows[rowNum].insertCell(colNum);
 
             if (colNum < startDay) {
+              continue;
+            }
+
+            if (colNum > endDay) {
               continue;
             }
 
