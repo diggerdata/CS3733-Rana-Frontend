@@ -36,7 +36,9 @@ function validateScheduleCreation() {
 	// creates javascript date format
 	if (s_time < 10) {
 		s_time = "0"+s_time;
-	} else if (e_time < 10) {
+	}
+
+	if (e_time < 10) {
 		e_time = "0"+e_time;
 	}
 
@@ -75,7 +77,8 @@ function validateScheduleCreation() {
 			scheduleid = this.response.schedule_id;
 			console.log(this.response);
 			alert("Calendar Created\nSecret Code is: "+this.response.secret_code);
-			window.location.replace("review.html?"+secretcode+""+scheduleid);
+			// window.location.replace("review.html?"+secretcode+""+scheduleid);
+			return false;
 		}else{
 			alert(this.response.message);
 			return false;
@@ -83,9 +86,6 @@ function validateScheduleCreation() {
 	};
 
 	request.send(JSON.stringify(object));
-	// if (request.send(JSON.stringify(object))) {
-
-	// }
 
 	return false;
 }
