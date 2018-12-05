@@ -3,6 +3,10 @@ var userType = ""; // organizer, participant, init
 var secretcode = "";
 var scheduleid = "";
 
+// schedule week tracking
+var week = 0;
+var firstMonday, lastDate, currWeek;
+
 // TODO:  check if ID actually exists in database - GET request
 
 function getView(){
@@ -197,11 +201,12 @@ function selectSlot(id){
 function getSchedule(){
   var request = new XMLHttpRequest();
   request.open('GET', 'https://sqc1z962y5.execute-api.us-east-2.amazonaws.com/dev/schedule/'+scheduleid, true);
-	// request.open('GET', 'https://sqc1z962y5.execute-api.us-east-2.amazonaws.com/dev/schedule/2?week=2011-04-18T00:00:00.00Z', true);
-	// request.setRequestHeader('Authorization', 'ywoAcCBGpM');
   request.onload = function () {
 		var data = JSON.parse(this.response);
 		console.log(data);
+
+    // Gets the start date and end date to figure out how to show other weeks
+    setScheduleWeekTracking(data.timeslots[0].start_date, data.timeslots[data.timeslots.length - 1].start_date);
 
     // TODO fix request to send 400 error if ID + authorization are incorrect
 		if (request.status >= 200 && request.status < 400 && data.status != "fail") {
@@ -218,6 +223,18 @@ function getSchedule(){
 	}
 
 	request.send();
+}
+
+function setScheduleWeekTracking(start, end){
+  lastDate = new Date(end);
+
+  var a = new Date(start);
+  if (a.getDay() > 1){
+    a.setDate(a.getDate() - (a.getDay() - 1)); // 1 is Monday
+  }
+
+  firstMonday = currWeek = a;
+
 }
 
 function validateUser(){
@@ -370,6 +387,9 @@ function previousWeek() {
 
 function nextWeek() {
   // TODO: implement next week
+  // check if end date is in next week
+  // once verified, week + 1
+  // week cannot increase if end date is in current week
 }
 
 function deleteSchedule() {
