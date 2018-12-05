@@ -289,6 +289,9 @@ function toggleCalendar(arg) {
 }
 
 function showTimeSlots() {
+
+  var weekRange = document.getElementById("weekRange");
+  weekRange.innerHTML = "<b>Week: </b>"+getWeekRange();
 	// Create new request
 	var request = new XMLHttpRequest();
 
@@ -404,7 +407,6 @@ function nextWeek() {
   currWeek = getNextWeek(currWeek);
   week++;
   reloadCalendar();
-  // once verified, week + 1
   // week cannot increase if end date is in current week
 }
 
@@ -426,6 +428,19 @@ function getPreviousWeek(date){
   var resultDate = new Date(date.getTime());
   resultDate.setDate(date.getDate() - 7);
   return resultDate;
+}
+
+function getWeekRange(){
+  // Example return " March 3, 2018 - March 9, 2018"
+  var lastDayOfWeek;
+  lastDayOfWeek = new Date(currWeek.getTime());
+  lastDayOfWeek.setDate(currWeek.getDate() + 4);
+  return getWeekString(currWeek)+" - "+getWeekString(lastDayOfWeek);
+}
+
+function getWeekString(date){
+  // sketch soltion lol
+  return date.toString().substring(4, 15);
 }
 
 function deleteSchedule() {
