@@ -192,10 +192,31 @@ function selectSlot(id){
 
   if (username != ""){
     alert("Meeting set for: "+username+" at timeslot id of: "+id);
+    createMeeting(username, id);
   } else {
     alert("Must have a user name to set a meeting!");
   }
   // TODO: send data to calendar
+}
+
+function createMeeting(username, id){
+  var request = new XMLHttpRequest();
+  var meeting_url = post_url + scheduleid + "/" + "timeslot/" + id;
+  console.log(meeting_url);
+
+	request.responseType = "json";
+	request.open("POST", meeting_url, true);
+	request.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+
+	request.onload = function(){
+    console.log(this.response);
+	};
+
+  var jsonObj = {username: username, email: "a@a.com"};
+
+	request.send(JSON.stringify(jsonObj));
+
+	return false;
 }
 
 function getSchedule(){
