@@ -208,7 +208,7 @@ function getSchedule(){
 		console.log(data);
 
     // Gets the start date and end date to figure out how to show other weeks
-    setScheduleWeekTracking(data.timeslots[0].start_date, data.timeslots[data.timeslots.length - 1].start_date);
+    setScheduleWeekTracking(data.timeslots[0].start_date, data.end_date);
 
     // TODO fix request to send 400 error if ID + authorization are incorrect
 		if (request.status >= 200 && request.status < 400 && data.status != "fail") {
