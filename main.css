@@ -11,6 +11,7 @@
     margin: auto;
 }
 
+/* TODO: Create a new class for the create menu and for the input params, use flex_item as an example */
 .flex_item {
     background: lightslategray;
     padding: 5px;
@@ -20,4 +21,12 @@
 
     color: goldenrod;
     text-align: left;
+}
+
+.flex_create_schedule {
+    background: lightslategray;
+}
+
+.flex_create_schedule_param {
+    background: red;
 }

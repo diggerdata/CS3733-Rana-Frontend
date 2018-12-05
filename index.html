@@ -60,13 +60,13 @@
 
   	<div class="flex_container">
   		<!-- TODO remove commented disabled options after complete -->
-  		<form id="createForm" name= "createScheduleForm" onsubmit="return validateScheduleCreation()" class="flex_item">
+  		<form id="createForm" name= "createScheduleForm" onsubmit="return validateScheduleCreation()" class="flex_create_schedule">
   			<fieldset>
   				<legend>Create Schedule</legend>
-  				Schedule Name: <input type="text" name="scheduleName" id="scheduleName" placeholder="Schedule Name" value="John" required><br><br>
-  				Start Date: <input type="date" name="startDate" id="startDate" value="2018-01-01" required><br><br>
-  				End Date: <input type="date" name="endDate" id="endDate" value="2018-02-02" required><br><br>
-  				Start Time: <select name="startTime" id="startTime" required>
+  				Schedule Name: <input type="text" name="scheduleName" id="scheduleName" placeholder="Schedule Name" value="John" required class="flex_create_schedule_param"><br><br>
+  				Start Date: <input type="date" name="startDate" id="startDate" value="2018-01-01" required class="flex_create_schedule_param"><br><br>
+  				End Date: <input type="date" name="endDate" id="endDate" value="2018-02-02" required class="flex_create_schedule_param"><br><br>
+  				Start Time: <select name="startTime" id="startTime" required class="flex_create_schedule_param">
   					<!-- <option disabled selected value> -- select a time -- </option> -->
   					<option value="1">1:00</option>
   					<option value="2">2:00</option>
@@ -81,11 +81,11 @@
   					<option value="11">11:00</option>
   					<option value="12">12:00</option>
   				</select>
-  				<select name="stType" id="stType" required>
+  				<select name="stType" id="stType" required class="flex_create_schedule_param">
   					<option value="AM">AM</option>
   					<option value="PM">PM</option>
   				</select><br><br>
-  				End Time: <select name="endTime" id="endTime" required>
+  				End Time: <select name="endTime" id="endTime" required class="flex_create_schedule_param">
   					<!-- <option disabled selected value> -- select a time -- </option> -->
   					<option value="1">1:00</option>
   					<option value="2">2:00</option>
@@ -100,13 +100,13 @@
   					<option value="11">11:00</option>
   					<option value="12">12:00</option>
   				</select>
-  				<select name="etType" id="etType" required>
+  				<select name="etType" id="etType" required class="flex_create_schedule_param">
   					<option value="AM">AM</option>
   					<option value="PM">PM</option>
   				</select><br><br>
   				<!-- Start Time: <input type="time" name="startTime" id="startTime" required><br><br> -->
   				<!-- End Time: <input type="time" name="endTime" id="endTime" required><br><br> -->
-  				Slot Duration: <select name="slotDuration" id="slotDuration" required>
+  				Slot Duration: <select name="slotDuration" id="slotDuration" required class="flex_create_schedule_param">
   					<!-- <option disabled selected value> -- select a duration -- </option> -->
   					<option value="10">10</option>
   					<option value="15">15</option>
@@ -114,8 +114,8 @@
   					<option value="45">45</option>
   					<option value="60">60</option>
   				</select> minutes <br><br>
-  				User Name: <input type="text" name="userName" id="userName" placeholder="Username" value="johnuser" required><br><br>
-  				User Email: <input type="email" name="userEmail" id="userEmail" placeholder="Email" value="john@user.com" required><br><br>
+  				User Name: <input type="text" name="userName" id="userName" placeholder="Username" value="johnuser" required class="flex_create_schedule_param"><br><br>
+  				User Email: <input type="email" name="userEmail" id="userEmail" placeholder="Email" value="john@user.com" required class="flex_create_schedule_param"><br><br>
   				<button type="submit">Create Schedule</button>
   			</fieldset>
   		</form>
