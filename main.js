@@ -1,4 +1,4 @@
-var post_url = "https://sqc1z962y5.execute-api.us-east-2.amazonaws.com/dev/schedule/"
+var post_url = "https://wxasuozkgb.execute-api.us-east-2.amazonaws.com/dev/schedule/"
 var userType = ""; // organizer, participant, init
 var secretcode = "";
 var scheduleid = "";
@@ -73,7 +73,9 @@ function validateScheduleCreation() {
 	if (e_date < s_date) {
 		alert("End date can't be less than start date!");
 		return false;
-	} else if (e_time <= s_time) {
+	}
+
+  if (e_time <= s_time) {
 		alert("Start time cannot be greater than or equal to the end time!");
 		return false;
 	}
@@ -99,7 +101,7 @@ function validateScheduleCreation() {
 	formData.append('name', schedulename);
 	formData.append('start_date', utcStartDate);
 	formData.append('end_date', utcEndDate);
-	formData.append('duration', parseInt(slotduration));
+	formData.append('duration', slotduration);
 	formData.append('username', username);
 	formData.append('email', email);
 
@@ -221,13 +223,13 @@ function createMeeting(username, id){
 
 function getSchedule(){
   var request = new XMLHttpRequest();
-  request.open('GET', 'https://sqc1z962y5.execute-api.us-east-2.amazonaws.com/dev/schedule/'+scheduleid, true);
+  request.open('GET', post_url+scheduleid, true);
   request.onload = function () {
 		var data = JSON.parse(this.response);
 		console.log(data);
 
     // Gets the start date and end date to figure out how to show other weeks
-    setScheduleWeekTracking(data.timeslots[0].start_date, data.timeslots[data.timeslots.length - 1].start_date);
+    setScheduleWeekTracking(data.timeslots[0].start_date, data.end_date);
 
     // TODO fix request to send 400 error if ID + authorization are incorrect
 		if (request.status >= 200 && request.status < 400 && data.status != "fail") {
@@ -317,7 +319,7 @@ function showTimeSlots() {
 	var request = new XMLHttpRequest();
 
 	// Make GET request
-  var getWeekURL = 'https://sqc1z962y5.execute-api.us-east-2.amazonaws.com/dev/schedule/'+scheduleid+'?week='+currWeek.toISOString();
+  var getWeekURL = post_url+scheduleid+'?week='+currWeek.toISOString();
   // console.log(getURL);
   // request.open('GET', 'https://sqc1z962y5.execute-api.us-east-2.amazonaws.com/dev/schedule/'+scheduleid, true);
   request.open('GET', getWeekURL, true);
@@ -469,7 +471,7 @@ function deleteSchedule() {
 	if (answer) {
 		// schedule is deleted and returns back to home page
     var request = new XMLHttpRequest();
-    request.open('DELETE', 'https://sqc1z962y5.execute-api.us-east-2.amazonaws.com/dev/schedule/'+scheduleid, true);
+    request.open('DELETE', post_url+scheduleid, true);
   	request.setRequestHeader('Authorization', secretcode);
     request.onload = function () {
   		var data = JSON.parse(this.response);
