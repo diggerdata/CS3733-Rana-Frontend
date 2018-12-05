@@ -1,0 +1,23 @@
+.flex-container {
+    /* Define a flex container */
+    display: flex;
+    /* Establish main axis as vertical, descending */
+    flex-direction: column;
+    /* Justify content to center of page */
+    justify-content: center;
+
+    /* Create padding and margins for content */
+    padding: 0;
+    margin: auto;
+}
+
+.flex_item {
+    background: lightslategray;
+    padding: 5px;
+    width: 600px;
+    height: 100px;
+    margin: 10px;
+
+    color: goldenrod;
+    text-align: left;
+}
