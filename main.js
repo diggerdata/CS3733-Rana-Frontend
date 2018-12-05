@@ -293,7 +293,10 @@ function showTimeSlots() {
 	var request = new XMLHttpRequest();
 
 	// Make GET request
-  request.open('GET', 'https://sqc1z962y5.execute-api.us-east-2.amazonaws.com/dev/schedule/'+scheduleid, true);
+  var getWeekURL = 'https://sqc1z962y5.execute-api.us-east-2.amazonaws.com/dev/schedule/'+scheduleid+'?week='+currWeek.toISOString();
+  // console.log(getURL);
+  // request.open('GET', 'https://sqc1z962y5.execute-api.us-east-2.amazonaws.com/dev/schedule/'+scheduleid, true);
+  request.open('GET', getWeekURL, true);
 	request.onload = function () {
 		// Access JSON data
 		var data = JSON.parse(this.response);
@@ -304,6 +307,7 @@ function showTimeSlots() {
     var endDay = (new Date(data.timeslots[data.timeslots.length - 1].start_date)).getDay();
 
 		if (request.status >= 200 && request.status < 400) {
+
 			var calenderBody = document.getElementById("calendarBody");
 
 			// The first column will contain the date information
@@ -346,6 +350,7 @@ function showTimeSlots() {
 						// Create a new cell <td> element at the current row and column
 						var cell = calendarBody.rows[rowNum].insertCell(colNum);
 
+            // creates cells but they are empty if they do not exist
             if (colNum < startDay) {
               continue;
             }
@@ -383,13 +388,44 @@ function showTimeSlots() {
 
 function previousWeek() {
   // TODO: implement previous week
+  if (week > 0) {
+    currWeek = getPreviousWeek(currWeek);
+    week--;
+    reloadCalendar();
+  } else {
+    alert("Can't go before start date!");
+  }
+
 }
 
 function nextWeek() {
   // TODO: implement next week
-  // check if end date is in next week
+  // TODO: check if end date is in next week (get correct 'end' date)
+  currWeek = getNextWeek(currWeek);
+  week++;
+  reloadCalendar();
   // once verified, week + 1
   // week cannot increase if end date is in current week
+}
+
+function reloadCalendar(){
+  var new_body = document.createElement("tbody");
+  new_body.id = "calendarBody";
+  var old_body = document.getElementById("calendarBody");
+  old_body.parentNode.replaceChild(new_body, old_body);
+  showTimeSlots();
+}
+
+function getNextWeek(date){
+  var resultDate = new Date(date.getTime());
+  resultDate.setDate(date.getDate() + 7);
+  return resultDate;
+}
+
+function getPreviousWeek(date){
+  var resultDate = new Date(date.getTime());
+  resultDate.setDate(date.getDate() - 7);
+  return resultDate;
 }
 
 function deleteSchedule() {
