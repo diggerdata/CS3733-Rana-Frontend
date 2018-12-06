@@ -471,3 +471,45 @@ function deleteSchedule() {
 		return true;
 	}
 }
+
+// function putTimeslotsIntoTable() {}
+
+// returns: void -- removes options from a selection in html
+function removeOptions(selectbox)
+{
+    var i;
+    for(i = selectbox.options.length - 1 ; i >= 0 ; i--)
+    {
+        selectbox.remove(i);
+    }
+}
+
+// built for case: user searches for available timeslots
+// returns: void -- gets available slots and puts them into a viewable list
+function getAvailableTimeslots() {
+
+  // getAvailableTimeslots(year, month, weekday, day, hour)
+  // get timeslots THIS IS WHERE I NEED YOU NATHAN!
+
+  // I'm using this VVV until i can get real info from you!
+  let dummyTimeSlotStrings = ["slot 1", "slot 2", "slot 3", "slot 2","slot 2","slot 2","slot 2"];
+
+  // put them into the table
+  var x = document.getElementById("timeSlotListOptions");
+  if (x.style.display = "none") {
+    x.style.display = "block";
+  }
+  removeOptions(x);
+  const limitingLength = 12;
+  let arrayLength = dummyTimeSlotStrings.length;
+  x.size = (arrayLength <= limitingLength) ? arrayLength : limitingLength;
+  for(i=0; i < dummyTimeSlotStrings.length; i++) {
+    let option = document.createElement("option");
+    option.text = dummyTimeSlotStrings[i];
+    x.add(option);
+  }
+  
+  // celebrate
+
+  // return array of timeslots
+}
