@@ -1,0 +1,76 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    background-color: #555555;
+}
+
+h1 {
+    align-content: center;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+input[type=text], input[type=date], input[type=email], select, textarea {
+    width: 100%;
+    padding: 10px 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    resize: vertical;
+}
+
+label {
+    padding: 10px 10px 10px 0;
+    display: inline-block;
+}
+
+input[type=submit] {
+    width: 100%;
+    margin-top: 10px;
+    background-color: lightgreen;
+    color: whitesmoke;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+input[type=submit]:hover {
+    background-color: darkgreen;
+}
+
+.container {
+    width: 60%;
+    border-radius: 5px;
+    background-color: whitesmoke;
+    padding: 20px;
+    margin: auto;
+}
+
+.col-label {
+    float: left;
+    width: 30%;
+    margin-top: 5px;
+}
+
+.col-input {
+    float: right;
+    width: 70%;
+    margin-top: 5px;
+}
+
+/* Clear float styles after columns */
+.row:after {
+    content: "";
+    display: table;
+    clear: both;
+}
+
+/* When screen is less than 500 pixels wide, stack the key and value
+   columns on top of each others. */
+@media screen and (max-width: 500px) {
+    .col-25, .col-75, input[type=submit] {
+        width: 100%;
+        margin-top: 0;
+    }
+}
