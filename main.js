@@ -162,6 +162,15 @@ Review Schedule JavaScript Functions
 
 */
 
+function changeView(arg){
+  if (arg){
+    userType = "organizer";
+  } else {
+    userType = "participant";
+  }
+  validateUser();
+}
+
 function tableFunction(){
   // Table Script
   var table = document.getElementById("calendar");
@@ -265,12 +274,12 @@ function validateUser(){
   var participant = document.getElementById("participantView");
   var organizer = document.getElementById("organizerView");
   var inituser = document.getElementById("initView");
-  if (secretcode == "participant") { // Edit Meeting
+  if (userType == "participant") { // Edit Meeting
     userType = "participant";
     organizer.style.display = "none";
     inituser.style.display = "block";
     participant.style.display = "block";
-  } else if (userType == "organizer" || secretcode == "organizer"){ // Edit Schedule
+  } else if (userType == "organizer"){ // Edit Schedule
     userType = "organizer";
     participant.style.display = "none";
     inituser.style.display = "none";
@@ -427,7 +436,12 @@ function previousWeek() {
 function nextWeek() {
   // TODO: implement next week
   // TODO: check if end date is in next week (get correct 'end' date)
+  var previousWeek = currWeek;
   currWeek = getNextWeek(currWeek);
+  if (previousWeek == currWeek) {
+    console.log("Can't go to next week!");
+    return;
+  }
   week++;
   reloadCalendar();
   // week cannot increase if end date is in current week
@@ -444,7 +458,34 @@ function reloadCalendar(){
 function getNextWeek(date){
   var resultDate = new Date(date.getTime());
   resultDate.setDate(date.getDate() + 7);
+  if (onLastWeek(date)){
+    alert("Cannot go to a further week that does not exist!");
+    return date;
+  }
   return resultDate;
+}
+
+// Doesn't Work!!!
+function onLastWeek(date){
+  // get lastDate and nextWeek and compare
+  for (var num = 0; num < 5; num++){
+    var newDate = new Date(date.getTime());
+    newDate.setDate(date.getDate() + num);
+    console.log("N: "+newDate+"\nL: "+lastDate);
+    if (isSameDate(newDate, lastDate)){
+      return true;
+    }
+  }
+  return false;
+}
+
+function isSameDate(date1, date2){
+  if (date1.getMonth() == date2.getMonth()
+  && date1.getFullYear() == date2.getFullYear()
+  && date1.getDate() == date2.getDate()) {
+    return true;
+  }
+  return false;
 }
 
 function getPreviousWeek(date){
