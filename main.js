@@ -167,6 +167,7 @@ function changeView(arg){
     userType = "organizer";
   } else {
     userType = "participant";
+    // getMeeting(document.getElementById("secretCode"));
   }
   validateUser();
 }
@@ -210,6 +211,7 @@ function selectSlot(id){
   // TODO: send data to calendar
 }
 
+// TODO Janky Back end for now
 function createMeeting(username, id){
   var request = new XMLHttpRequest();
   var meeting_url = post_url + scheduleid + "/" + "timeslot/" + id;
@@ -220,7 +222,8 @@ function createMeeting(username, id){
 	request.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
 
 	request.onload = function(){
-    console.log(this.response);
+    var data = JSON.parse(this.response);
+    console.log(data);
 	};
 
   var jsonObj = {username: username, email: "a@a.com"};
@@ -228,6 +231,30 @@ function createMeeting(username, id){
 	request.send(JSON.stringify(jsonObj));
 
 	return false;
+}
+
+// TODO How to even implement this??
+function getMeeting(code){
+  var request = new XMLHttpRequest();
+  var meeting_url = post_url + scheduleid + "/" + "timeslot/";
+  request.open('GET', meeting_url, true);
+  request.setRequestHeader('Authorization', code);
+  request.onload = function () {
+		var data = JSON.parse(this.response);
+		console.log(data);
+
+    // Gets the start date and end date to figure out how to show other weeks
+
+    // TODO fix request to send 400 error if ID + authorization are incorrect
+		// if (request.status >= 200 && request.status < 400 && data.status != "fail") {
+    //
+    // } else {
+    //   alert("This meeting does not exist!");
+    // }
+
+	}
+
+	request.send();
 }
 
 function getSchedule(){
@@ -284,10 +311,10 @@ function validateUser(){
     participant.style.display = "none";
     inituser.style.display = "none";
     organizer.style.display = "block";
-  } else {
-    userType = "";
-    alert("Incorrect Code");
   }
+
+  document.getElementById("viewChooser").style.display = "none";
+
   return false;
 }
 
@@ -465,9 +492,8 @@ function getNextWeek(date){
   return resultDate;
 }
 
-// Doesn't Work!!!
 function onLastWeek(date){
-  // get lastDate and nextWeek and compare
+  // get lastDate and current week and compares
   for (var num = 0; num < 5; num++){
     var newDate = new Date(date.getTime());
     newDate.setDate(date.getDate() + num);
@@ -480,6 +506,7 @@ function onLastWeek(date){
 }
 
 function isSameDate(date1, date2){
+  // checks if both dates (month day year) are the same
   if (date1.getMonth() == date2.getMonth()
   && date1.getFullYear() == date2.getFullYear()
   && date1.getDate() == date2.getDate()) {
