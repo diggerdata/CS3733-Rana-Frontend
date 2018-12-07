@@ -1,4 +1,4 @@
-var post_url = "https://sqc1z962y5.execute-api.us-east-2.amazonaws.com/dev/schedule/"
+var post_url = "https://wxasuozkgb.execute-api.us-east-2.amazonaws.com/dev/schedule/"
 var userType = ""; // organizer, participant, init
 var secretcode = "";
 var scheduleid = "";
@@ -200,7 +200,7 @@ function selectSlot(id){
 
 function getSchedule(){
   var request = new XMLHttpRequest();
-  request.open('GET', 'https://sqc1z962y5.execute-api.us-east-2.amazonaws.com/dev/schedule/'+scheduleid, true);
+  request.open('GET', 'https://wxasuozkgb.execute-api.us-east-2.amazonaws.com/dev/schedule/'+scheduleid, true);
   request.onload = function () {
 		var data = JSON.parse(this.response);
 		console.log(data);
@@ -296,7 +296,7 @@ function showTimeSlots() {
 	var request = new XMLHttpRequest();
 
 	// Make GET request
-  var getWeekURL = 'https://sqc1z962y5.execute-api.us-east-2.amazonaws.com/dev/schedule/'+scheduleid+'?week='+currWeek.toISOString();
+  var getWeekURL = 'https://wxasuozkgb.execute-api.us-east-2.amazonaws.com/dev/schedule/'+scheduleid+'?week='+currWeek.toISOString();
   // console.log(getURL);
   // request.open('GET', 'https://sqc1z962y5.execute-api.us-east-2.amazonaws.com/dev/schedule/'+scheduleid, true);
   request.open('GET', getWeekURL, true);
@@ -448,7 +448,7 @@ function deleteSchedule() {
 	if (answer) {
 		// schedule is deleted and returns back to home page
     var request = new XMLHttpRequest();
-    request.open('DELETE', 'https://sqc1z962y5.execute-api.us-east-2.amazonaws.com/dev/schedule/'+scheduleid, true);
+    request.open('DELETE', 'https://wxasuozkgb.execute-api.us-east-2.amazonaws.com/dev/schedule/'+scheduleid, true);
   	request.setRequestHeader('Authorization', secretcode);
     request.onload = function () {
   		var data = JSON.parse(this.response);
