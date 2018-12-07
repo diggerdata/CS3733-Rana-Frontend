@@ -560,3 +560,64 @@ function deleteSchedule() {
 		return true;
 	}
 }
+
+/*
+  TODO Functions
+*/
+
+/*
+  function toggleTimeSlot() {
+    // Called from "select slot" with userType = "organizer"
+    // If slot is selected, and timeslot is "free", then it closes it
+    // If slot is selected, and timeslot is "closed", then it opens it
+    // If cell is header (monday, tuesday, wednesday, thursday, friday)
+    // it should open/close the whole column
+    // If cell is timeslot, it open/close the whole row
+  }
+
+  function createMeeting(){
+    // If a participant selects any slot that is available, they are provided a secret code
+    // participant can either select a slot on the schedule or submit a slot on the select options table (must return timeslot ID value)
+  }
+
+  function getMeeting(){
+    // If participant enters correct code, they retrieve their username and the timeslot in a string
+    // "Hi <username>"
+    // "You have an appointment on: Feb 14, 2019 at 8:15 P.M."
+    // They are given the chance to cancel a meeting
+
+    // If incorrect code then:
+    // "Your code is incorrect or your meeting was cancelled by the organizer"
+  }
+
+
+  function cancelMeetingP(){
+    // With correct code, participant can cancel the meeting they have set
+  }
+
+  function cancelMeetingO(){
+  // with correct code, organizer can click on a slot with meeting and cancel it
+  // slot becomes open? or closed?
+}
+
+  function extendDates(){
+    // Given start and end dates that are "extended" from schedule start and end dates, extend the dates on the schedule
+    // and refresh
+  }
+
+  function searchForTimeSlots(){
+    // Given a set of requirements, gets a list of avaialble time slots and displays them
+  }
+
+*/
+
+/*
+  TODO implementations
+*/
+
+/*
+  - In Organizer view, the "closed" time slots are differently colored than the "meeting" timeslots
+    - "meeting" timeslots display the user name inside
+  - In Participant view, both "closed" and "meeting" timeslots look the same with no information provided (grey)
+  - Authenticate returning participant and organizer using secret code
+*/
