@@ -10,7 +10,7 @@
 		width: 100%;
 	}
 
-	.cal-btn, #hideCal, #showCal, #calendarView {
+	.cal-btn, #hideCal, #showCal, #calendarView, #timeSlotListOptions {
 		display:none;
 	}
 
@@ -255,18 +255,21 @@
 	  		<br>
 
 	  		<div>
-	  			<form name="searchTimeSlotForm">
-	  				<fieldset>
+	  			<!-- <form name="searchTimeSlotForm" onsubmit="getAvailableTimeslots()">
+	  				<fieldset> -->
 	  					<legend>Search for TimeSlots</legend>
-	  					Year: <select></select>
+	  					Year: <select id="yearSearch"></select>
 	  					Month: <select></select>
 	  					Weekday: <select></select>
 	  					Day: <select></select>
 	  					Hour: <select></select>
-	  					<button type="submit">Find TimeSlots</button>
-	  				</fieldset>
-	  			</form>
-	  			<p>Time slot search goes here</p>
+	  					<button type="button" onclick="getAvailableTimeslots()">Find TimeSlots</button>
+	  				<!-- </fieldset>
+				  </form> -->
+				  <!-- Eamon is working on making this a scrollable table VVV -->
+				  <form name = "timeSlotList">
+					<select id="timeSlotListOptions"></select>
+				</form>
 	  			<!--
 	  				Should be able to search for time slots using a filters
 	  			-->
