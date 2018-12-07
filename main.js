@@ -162,6 +162,16 @@ Review Schedule JavaScript Functions
 
 */
 
+function changeView(arg){
+  if (arg){
+    userType = "organizer";
+  } else {
+    userType = "participant";
+    // getMeeting(document.getElementById("secretCode"));
+  }
+  validateUser();
+}
+
 function tableFunction(){
   // Table Script
   var table = document.getElementById("calendar");
@@ -194,10 +204,57 @@ function selectSlot(id){
 
   if (username != ""){
     alert("Meeting set for: "+username+" at timeslot id of: "+id);
+    createMeeting(username, id);
   } else {
     alert("Must have a user name to set a meeting!");
   }
   // TODO: send data to calendar
+}
+
+// TODO Janky Back end for now
+function createMeeting(username, id){
+  var request = new XMLHttpRequest();
+  var meeting_url = post_url + scheduleid + "/" + "timeslot/" + id;
+  console.log(meeting_url);
+
+	request.responseType = "json";
+	request.open("POST", meeting_url, true);
+	request.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+
+	request.onload = function(){
+    var data = JSON.parse(this.response);
+    console.log(data);
+	};
+
+  var jsonObj = {username: username, email: "a@a.com"};
+
+	request.send(JSON.stringify(jsonObj));
+
+	return false;
+}
+
+// TODO How to even implement this??
+function getMeeting(code){
+  var request = new XMLHttpRequest();
+  var meeting_url = post_url + scheduleid + "/" + "timeslot/";
+  request.open('GET', meeting_url, true);
+  request.setRequestHeader('Authorization', code);
+  request.onload = function () {
+		var data = JSON.parse(this.response);
+		console.log(data);
+
+    // Gets the start date and end date to figure out how to show other weeks
+
+    // TODO fix request to send 400 error if ID + authorization are incorrect
+		// if (request.status >= 200 && request.status < 400 && data.status != "fail") {
+    //
+    // } else {
+    //   alert("This meeting does not exist!");
+    // }
+
+	}
+
+	request.send();
 }
 
 function getSchedule(){
@@ -244,20 +301,20 @@ function validateUser(){
   var participant = document.getElementById("participantView");
   var organizer = document.getElementById("organizerView");
   var inituser = document.getElementById("initView");
-  if (secretcode == "participant") { // Edit Meeting
+  if (userType == "participant") { // Edit Meeting
     userType = "participant";
     organizer.style.display = "none";
     inituser.style.display = "block";
     participant.style.display = "block";
-  } else if (userType == "organizer" || secretcode == "organizer"){ // Edit Schedule
+  } else if (userType == "organizer"){ // Edit Schedule
     userType = "organizer";
     participant.style.display = "none";
     inituser.style.display = "none";
     organizer.style.display = "block";
-  } else {
-    userType = "";
-    alert("Incorrect Code");
   }
+
+  document.getElementById("viewChooser").style.display = "none";
+
   return false;
 }
 
@@ -406,7 +463,12 @@ function previousWeek() {
 function nextWeek() {
   // TODO: implement next week
   // TODO: check if end date is in next week (get correct 'end' date)
+  var previousWeek = currWeek;
   currWeek = getNextWeek(currWeek);
+  if (previousWeek == currWeek) {
+    console.log("Can't go to next week!");
+    return;
+  }
   week++;
   reloadCalendar();
   // week cannot increase if end date is in current week
@@ -423,7 +485,34 @@ function reloadCalendar(){
 function getNextWeek(date){
   var resultDate = new Date(date.getTime());
   resultDate.setDate(date.getDate() + 7);
+  if (onLastWeek(date)){
+    alert("Cannot go to a further week that does not exist!");
+    return date;
+  }
   return resultDate;
+}
+
+function onLastWeek(date){
+  // get lastDate and current week and compares
+  for (var num = 0; num < 5; num++){
+    var newDate = new Date(date.getTime());
+    newDate.setDate(date.getDate() + num);
+    console.log("N: "+newDate+"\nL: "+lastDate);
+    if (isSameDate(newDate, lastDate)){
+      return true;
+    }
+  }
+  return false;
+}
+
+function isSameDate(date1, date2){
+  // checks if both dates (month day year) are the same
+  if (date1.getMonth() == date2.getMonth()
+  && date1.getFullYear() == date2.getFullYear()
+  && date1.getDate() == date2.getDate()) {
+    return true;
+  }
+  return false;
 }
 
 function getPreviousWeek(date){
@@ -513,3 +602,65 @@ function getAvailableTimeslots() {
 
   // return array of timeslots
 }
+
+/*
+  TODO Functions
+*/
+
+/*
+  function toggleTimeSlot() {
+    // Called from "select slot" with userType = "organizer"
+    // If slot is selected, and timeslot is "free", then it closes it
+    // If slot is selected, and timeslot is "closed", then it opens it
+    // If cell is header (monday, tuesday, wednesday, thursday, friday)
+    // it should open/close the whole column
+    // If cell is timeslot, it open/close the whole row
+  }
+
+  function createMeeting(){
+    // If a participant selects any slot that is available, they are provided a secret code
+    // participant can either select a slot on the schedule or submit a slot on the select options table (must return timeslot ID value)
+  }
+
+  function getMeeting(){
+    // If participant enters correct code, they retrieve their username and the timeslot in a string
+    // "Hi <username>"
+    // "You have an appointment on: Feb 14, 2019 at 8:15 P.M."
+    // They are given the chance to cancel a meeting
+
+    // If incorrect code then:
+    // "Your code is incorrect or your meeting was cancelled by the organizer"
+  }
+
+
+  function cancelMeetingP(){
+    // With correct code, participant can cancel the meeting they have set
+  }
+
+  function cancelMeetingO(){
+  // with correct code, organizer can click on a slot with meeting and cancel it
+  // slot becomes open? or closed?
+}
+
+  function extendDates(){
+    // Given start and end dates that are "extended" from schedule start and end dates, extend the dates on the schedule
+    // and refresh
+  }
+
+  function searchForTimeSlots(){
+    // Given a set of requirements, gets a list of avaialble time slots and displays them
+  }
+
+*/
+
+/*
+  TODO implementations
+*/
+
+/*
+  - In Organizer view, the "closed" time slots are differently colored than the "meeting" timeslots
+    - "meeting" timeslots display the user name inside
+  - In Participant view, both "closed" and "meeting" timeslots look the same with no information provided (grey)
+  - Authenticate returning participant and organizer using secret code
+*/
+
