@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html>
-<style>
+<!-- <style>
 
 	.slot-btn {
 		display: block;
 		margin: auto;
-    background: transparent;
-    border: none !important;
+    	background: transparent;
+    	border: none !important;
 		width: 100%;
 	}
 
@@ -35,13 +35,14 @@
 		display: none;
 	}
 
-</style>
+</style> -->
 <head>
 	<!-- meta charset -->
 	<title>Rana Scheduler App</title>
 	<!-- css -->
 	<script src="main.js"></script>
-	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css" integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">
+	<link rel="stylesheet" type="text/css" href="create_schedule.css">
+	<!-- <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css" integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous"> -->
 	<!-- <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.0/build/pure-min.css" integrity="sha384-nn4HPE8lTHyVtfCBi5yW9d20FjT8BJwUXyWZT9InLYax14RDjBj46LmSztkmNP9w" crossorigin="anonymous"> -->
 	<!-- Compiled and minified CSS -->
   <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css"> -->
@@ -52,80 +53,133 @@
 </head>
 
 <body onload="getView()">
-  <div id="createMode">
-		<div class="logo">
-			<img src="rana_logo.png" alt="Rana Scheduler Logo" style="float:left; width: 10%;">
+	<div id="header" class="header">
+		<img src="rana_logo.png" alt="Rana Scheduler Logo" style="float:left; width: 12%;">
+		<h1>Rana Scheduler</h1>
+	</div>
+  	<div id="createMode">
+		<div class="container">
+			<!-- TODO remove commented disabled options after complete -->
+			<form id="createForm" name= "createScheduleForm" onsubmit="return validateScheduleCreation()">
+				<div class="row">
+					<h2>Create Schedule</h2>
+				</div>
+				<div class="row">
+					<div class="col-label">
+						<label for="scheduleName">Schedule Name:</label>
+					</div>
+					<div class="col-input">
+						<input type="text" name="scheduleName" id="scheduleName" placeholder="Name" required>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-label">
+						<label for="startDate">Start Date:</label>
+					</div>
+					<div class="col-input">
+						<input type="date" name="startDate" id="startDate" value="2018-01-01" required>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-label">
+						<label for="endDate">End Date:</label>
+					</div>
+					<div class="col-input">
+						<input type="date" name="endDate" id="endDate" value="2018-02-02" required>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-label">
+						<label for="startTime">Start Time:</label>
+					</div>
+					<div class="col-input">
+						<select name="startTime" id="startTime" required>
+							<option disabled selected value> -- Select a time -- </option>
+							<option value="1">1:00</option>
+							<option value="2">2:00</option>
+							<option value="3">3:00</option>
+							<option value="4">4:00</option>
+							<option value="5">5:00</option>
+							<option value="6">6:00</option>
+							<option value="7">7:00</option>
+							<option value="8">8:00</option>
+							<option value="9">9:00</option>
+							<option value="10">10:00</option>
+							<option value="11">11:00</option>
+							<option value="12">12:00</option>
+						</select>
+						<select name="stType" id="stType" required>
+							<option value="AM">AM</option>
+							<option value="PM">PM</option>
+						</select>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-label">
+						<label for="endTime">End Time:</label>
+					</div>
+					<div class="col-input">
+						<select name="endTime" id="endTime" required>
+							<option disabled selected value> -- Select a time -- </option>
+							<option value="1">1:00</option>
+							<option value="2">2:00</option>
+							<option value="3">3:00</option>
+							<option value="4">4:00</option>
+							<option value="5">5:00</option>
+							<option value="6">6:00</option>
+							<option value="7">7:00</option>
+							<option value="8">8:00</option>
+							<option value="9">9:00</option>
+							<option value="10">10:00</option>
+							<option value="11">11:00</option>
+							<option value="12">12:00</option>
+						</select>
+						<select name="etType" id="etType" required>
+							<option value="AM">AM</option>
+							<option value="PM">PM</option>
+						</select>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-label">
+						<label for="slotDuration">Slot Duration:</label>
+					</div>
+					<div class="col-input">
+						<select name="slotDuration" id="slotDuration" required>
+							<option disabled selected value> -- Select duration in minutes -- </option>
+							<option value="10">10</option>
+							<option value="15">15</option>
+							<option value="20">20</option>
+							<option value="30">30</option>
+							<option value="60">60</option>
+						</select>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-label">
+						<label for="userName">User Name:</label>
+					</div>
+					<div class="col-input">
+						<input type="text" name="userName" id="userName" placeholder="Username" required>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-label">
+						<label for="userEmail">User Email:</label>
+					</div>
+					<div class="col-input">
+						<input type="email" name="userEmail" id="userEmail" placeholder="email@website.com" required>
+					</div>
+				</div>
+				<div class="row">
+					<input type="submit" value="Create Schedule">
+				</div>
+			</form>
 		</div>
 
-    <div>
-  		<h1>Create Schedule</h1>
   	</div>
 
-  	<div>
-  		<!-- TODO remove commented disabled options after complete -->
-  		<form id="createForm" name= "createScheduleForm" onsubmit="return validateScheduleCreation()">
-  			<fieldset>
-  				<legend>Create Schedule</legend>
-  				Schedule Name: <input type="text" name="scheduleName" id="scheduleName" placeholder="Schedule Name" value="John" required><br><br>
-  				Start Date: <input type="date" name="startDate" id="startDate" value="2018-01-01" required><br><br>
-  				End Date: <input type="date" name="endDate" id="endDate" value="2018-02-02" required><br><br>
-  				Start Time: <select name="startTime" id="startTime" required>
-  					<!-- <option disabled selected value> -- select a time -- </option> -->
-  					<option value="1">1:00</option>
-  					<option value="2">2:00</option>
-  					<option value="3">3:00</option>
-  					<option value="4">4:00</option>
-  					<option value="5">5:00</option>
-  					<option value="6">6:00</option>
-  					<option value="7">7:00</option>
-  					<option value="8">8:00</option>
-  					<option value="9">9:00</option>
-  					<option value="10">10:00</option>
-  					<option value="11">11:00</option>
-  					<option value="12">12:00</option>
-  				</select>
-  				<select name="stType" id="stType" required>
-  					<option value="AM">AM</option>
-  					<option value="PM">PM</option>
-  				</select><br><br>
-  				End Time: <select name="endTime" id="endTime" required>
-  					<!-- <option disabled selected value> -- select a time -- </option> -->
-  					<option value="1">1:00</option>
-  					<option value="2">2:00</option>
-  					<option value="3">3:00</option>
-  					<option value="4">4:00</option>
-  					<option value="5">5:00</option>
-  					<option value="6">6:00</option>
-  					<option value="7">7:00</option>
-  					<option value="8">8:00</option>
-  					<option value="9">9:00</option>
-  					<option value="10">10:00</option>
-  					<option value="11">11:00</option>
-  					<option value="12">12:00</option>
-  				</select>
-  				<select name="etType" id="etType" required>
-  					<option value="AM">AM</option>
-  					<option value="PM">PM</option>
-  				</select><br><br>
-  				<!-- Start Time: <input type="time" name="startTime" id="startTime" required><br><br> -->
-  				<!-- End Time: <input type="time" name="endTime" id="endTime" required><br><br> -->
-  				Slot Duration: <select name="slotDuration" id="slotDuration" required>
-  					<!-- <option disabled selected value> -- select a duration -- </option> -->
-  					<option value="10">10</option>
-  					<option value="15">15</option>
-						<option value="20">20</option>
-  					<option value="30">30</option>
-  					<option value="60">60</option>
-  				</select> minutes <br><br>
-  				User Name: <input type="text" name="userName" id="userName" placeholder="Username" value="johnuser" required><br><br>
-  				User Email: <input type="email" name="userEmail" id="userEmail" placeholder="Email" value="john@user.com" required><br><br>
-  				<button type="submit">Create Schedule</button>
-  			</fieldset>
-  		</form>
-  	</div>
-  </div>
-
-  <div id="reviewMode">
+    <div id="reviewMode">
 		<div id="reviewView">
 			<div class="logo">
 				<img src="rana_logo.png" alt="Rana Scheduler Logo" style="float:left; width: 10%;">
@@ -135,12 +189,20 @@
 	  		<h1 id="rScheduleName"></h1>
 	  	</div>
 
+			<div id="viewChooser">
+				<p>Who are you?</p>
+				<button type="button" onclick="changeView(true)">Organizer</button>
+				<button type="button" onclick="changeView(false)">Returning Participant</button>
+			</div>
+
+			<br>
+
 	  	<div>
-	  		<form id="secretCodeForm" name= "secretCodeForm" onsubmit="return validateUser()">
+	  		<form id="secretCodeForm" name= "secretCodeForm">
 	  			<fieldset>
 	  				<legend>Secret Code</legend>
 	  				<input id="secretCode" type="text" placeholder="Secret Code" required>
-	  				<button type ="submit">Submit</button>
+	  				<!-- <button type ="submit">Submit</button> -->
 	  			</fieldset>
 	  		</form>
 	  	</div>
