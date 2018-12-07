@@ -189,12 +189,20 @@
 	  		<h1 id="rScheduleName"></h1>
 	  	</div>
 
+			<div id="viewChooser">
+				<p>Who are you?</p>
+				<button type="button" onclick="changeView(true)">Organizer</button>
+				<button type="button" onclick="changeView(false)">Returning Participant</button>
+			</div>
+
+			<br>
+
 	  	<div>
-	  		<form id="secretCodeForm" name= "secretCodeForm" onsubmit="return validateUser()">
+	  		<form id="secretCodeForm" name= "secretCodeForm">
 	  			<fieldset>
 	  				<legend>Secret Code</legend>
 	  				<input id="secretCode" type="text" placeholder="Secret Code" required>
-	  				<button type ="submit">Submit</button>
+	  				<!-- <button type ="submit">Submit</button> -->
 	  			</fieldset>
 	  		</form>
 	  	</div>
