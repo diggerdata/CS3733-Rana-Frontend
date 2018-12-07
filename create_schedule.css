@@ -41,7 +41,7 @@ input[type=submit]:hover {
 }
 
 .header, .container {
-    width: 60%;
+    width: 50%;
     border-radius: 5px;
     background-color: whitesmoke;
     padding: 20px;
