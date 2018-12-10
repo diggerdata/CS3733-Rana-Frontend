@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html>
+<style>
+  .openSlot {
+    background-color: lightgreen;
+  }
+
+  .closedSlot {
+    background-color: grey;
+  }
+
+  .meetingSlot {
+    background-color: lightyellow;
+    text-align: center;
+  }
+
+  table {
+    border-spacing: 0;
+    border-collapse: collapse;
+  }
+
+  table, th, td {
+    border: 1px solid black;
+    cursor: context-menu;
+  }
+
+  .container-create {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    align-items: center;
+  }
+
+  .container-create-row {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: flex-start;
+  }
+
+  .container-create-column {
+    margin:30px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    align-items: center;
+  }
+
+  .container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    align-items: flex-start;
+  }
+
+  .container-inside {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+  }
+
+  .websiteTitle {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .websiteTitle img {
+    width: 5%;
+  }
+
+  .schedule-button-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+  .container-time {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+  }
+
+  .container-center {
+    display: flex;
+    align-self: center;
+  }
+
+  .container-small {
+    display: flex;
+    width: 25%;
+  }
+
+  #organizer-view, #participant-view, #searchList, #createMode, #reviewMode, #sysadminMode{
+    display: none;
+  }
+
+  #weekRange {
+    align-content: center;
+  }
+
+</style>
+<head>
+	<title>Test with values</title>
+	<script src="main.js"></script>
+</head>
+
+<body onload="getView()">
+  <div class = "websiteTitle">
+    <img src="rana_logo.png" alt="Rana Scheduler Logo">
+    <h1>&nbsp; Rana Scheduler</h1>
+  </div>
+
+  <br>
+
+  <!-- Create Schedule -->
+  <div id="createMode">
+    <form id="createForm" name= "createScheduleForm" onsubmit="return validateScheduleCreation()">
+      <div class="container-create">
+        Schedule Name: <br>
+        <input type="text" name="scheduleName" id="scheduleName" placeholder="Schedule Name" value="Test Schedule"required>
+        <br><div class="container-create-row">
+
+          <!-- Start and End dates -->
+          <div class="container-create-column">
+            Start Date: <br>
+            <input type="date" name="startDate" id="startDate" value="2018-12-10" required>
+            <br>End Date: <br>
+            <input type="date" name="endDate" id="endDate" value="2018-12-14" required>
+          </div>
+
+          <!--  Start and End times -->
+          <div class="container-create-column">
+            Start Time: <br>
+            <div class="container-time">
+              <select name="startTime" id="startTime" required>
+                <!-- <option disabled selected value> -- Select a time -- </option> -->
+                <option value="1">1:00</option>
+                <option value="2">2:00</option>
+                <option value="3">3:00</option>
+                <option value="4">4:00</option>
+                <option value="5">5:00</option>
+                <option value="6">6:00</option>
+                <option value="7">7:00</option>
+                <option value="8">8:00</option>
+                <option value="9">9:00</option>
+                <option value="10">10:00</option>
+                <option value="11">11:00</option>
+                <option value="12">12:00</option>
+              </select>
+              <select name="stType" id="stType" required>
+                <option value="AM">AM</option>
+                <option value="PM">PM</option>
+              </select>
+            </div>
+            <br>End Time: <br>
+            <div class="container-time">
+              <select name="endTime" id="endTime" required>
+                <!-- <option disabled selected value> -- Select a time -- </option> -->
+                <option value="1">1:00</option>
+                <option value="2">2:00</option>
+                <option value="3">3:00</option>
+                <option value="4">4:00</option>
+                <option value="5">5:00</option>
+                <option value="6">6:00</option>
+                <option value="7">7:00</option>
+                <option value="8">8:00</option>
+                <option value="9">9:00</option>
+                <option value="10">10:00</option>
+                <option value="11">11:00</option>
+                <option value="12">12:00</option>
+              </select>
+              <select name="etType" id="etType" required>
+                <option value="AM">AM</option>
+                <option value="PM">PM</option>
+              </select>
+            </div>
+            <br>Duration: <br>
+            <select name="slotDuration" id="slotDuration" required>
+              <!-- <option disabled selected value> -- Select duration in minutes -- </option> -->
+              <option value="10">10</option>
+              <option value="15">15</option>
+              <option value="20">20</option>
+              <option value="30">30</option>
+              <option value="60">60</option>
+            </select>
+          </div>
+
+          <!-- Name and Email -->
+          <div class="container-create-column">
+            Username: <br>
+            <input type="text" name="userName" id="userName" placeholder="Username" value="user12345" required>
+            <br> Email: <br>
+            <input type="email" name="userEmail" id="userEmail" placeholder="email@website.com" value="abc@123.com" required>
+          </div>
+
+        </div>
+        <br><input type="submit" value="Create Schedule">
+      </div>
+    </form>
+
+  </div>
+
+  <!-- Review Schedule -->
+  <div id ="reviewMode">
+    <div class="container">
+      <!-- Schedule -->
+      <div class="container-inside">
+        <div>
+          <h2>Schedule Name</h2>
+          <h4>Organizer: </h4>
+        </div>
+
+        <div class="schedule-button-container">
+          <button type="button" onclick="previousWeek()"><</button>
+          <button type="button">Schedule</button>
+          <button type="button" onclick="nextWeek()">></button>
+        </div>
+
+        <div class="container-center">
+          <p id="weekRange"></p>
+        </div>
+
+        <div>
+          <table id="schedulerTable">
+            <thead id="schedulerTableHead">
+              <th scope = "col" id="head5">Time</th>
+              <th scope = "col" id="head0">Monday</th>
+              <th scope = "col" id="head1">Tuesday</th>
+              <th scope = "col" id="head2">Wednesday</th>
+              <th scope = "col" id="head3">Thursday</th>
+              <th scope = "col" id="head4">Friday</th>
+            </thead>
+            <tbody id="schedulerTableBody">
+              <!-- Add body -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Info -->
+      <div class="container-inside container-small">
+        <div class = "container-inside" id="newP-page">
+          <h3>User Details</h3>
+          Name: <input type="text" placeholder="John Smith" id="username">
+          Email: <input type="email" placeholder="example@gmail.com" id="useremail">
+
+          <div>
+            <h4>Search for TimeSlots</h4>
+            <button type="button" onclick="getAvailableTimeslots()">Find TimeSlots</button><br><br>
+  					Year: <select id="yearSearch"></select>
+  					Month: <select id="monthSearch"></select>
+  					Weekday: <select id="weekdaySearch"></select>
+  					Day: <select id="daySearch"></select>
+  					Hour: <select id="hourSearch"></select>
+          </div>
+
+          <br>
+
+          <div id="searchList">
+            <form name = "timeSlotList">
+    					<select id="timeSlotListOptions"></select>
+              <br><button type="button">Create Meeting</button>
+    				</form>
+          </div>
+
+        </div>
+
+        <div class="user-view" id="organizer-page">
+          <h3>Organizer</h3>
+          <input type="text" placeholder="Secret Code" id="o-secretcode">
+          <button id="o-button" onclick="toOrganizer()">Enter</button>
+
+          <div id="organizer-view">
+            <!-- <h3>Organizer View</h3> -->
+            <p>Hi <span id="organizer-username"></span></p>
+            <!-- <button onclick="">Edit</button>
+            <br><br> -->
+            <div>
+              <form>
+                <fieldset>
+                  <legend>Extend Dates</legend>
+                  Start Date:<br> <input type="date"><br>
+                  End Date:<br> <input type="date"><br><br>
+                  <button type="submit" disabled>Extend</button>
+                </fieldset>
+              </form>
+              <br>
+              <button type="button" onclick="deleteSchedule()" disabled>Delete Schedule</button>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="user-view" id="returnP-page">
+          <h3>Participant</h3>
+          <input id="p-secretcode" type="text" placeholder="Secret Code">
+          <button id="p-button" onclick="toParticipant()">Enter</button>
+
+          <div id="participant-view">
+            <!-- <h3>Participant View</h3> -->
+            <h4>Meeting:</h4>
+            <p>Hi <span id="participant-username"></span>!</p>
+            <p>You have a meeting on: <span id="meeting-timeslot"></span></p>
+            <button onclick"">Cancel Meeting</button>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Sys Admin -->
+  <div id="sysadminMode">
+    <div class="container">
+      <!-- Login -->
+      <div class="container-inside">
+        <div>
+      		<h2>Sys Admin</h2>
+      	</div>
+
+      	<div>
+  				Secret Code: <input type="text" name="secretCode" required>
+  				<button type="button" onclick="">Login</button>
+      	</div>
+      </div>
+
+      <!-- Access -->
+      <div class="container-inside">
+        <div id="deleteForm">
+          <h2>Delete Schedules</h2>
+    			<form name="deleteSchedulesForm">
+						Days Old: <input type="number" name="daysOldSchedule">
+						<button type="submit">Delete Schedules</button>
+    			</form>
+    		</div>
+      </div>
+      <div class="container-inside">
+        <div id="reportForm">
+          <h2>Report Activity</h2>
+    			<form name="reportActivityForm">
+  					Hours: <input type="number" name="hoursCreatedSchedule">
+  					<button type="submit">Get Schedule List</button>
+    			</form>
+    		</div>
+
+        <div id="scheduleList">
+          <!--
+          Create a table with X schedules created in past N hours
+          -->
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+
+</body>
+</html>
