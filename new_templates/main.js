@@ -195,6 +195,7 @@ function getSchedule(){
 
 			// save organizer username
 			document.getElementById("organizer-username").innerHTML = "Organizer";// data.organizername
+      document.getElementById("review-scheduleName").innerHTML = data.name;
 
 			// get day of first time slot to determine where it gets placeholder
 			var startDay = (new Date(data.timeslots[0].start_date)).getDay(); // Mon = 1; Tue = 2; Wed = 3; Thur = 4; Fri = 5
@@ -765,6 +766,7 @@ function toOrganizer(){
 		refreshTable();
 	}
 	// document.getElementById("o-secretcode").disabled = true;
+  document.getElementById("meeting-legend").style.display = "block";
 	document.getElementById("o-button").style.display = "none";
 	document.getElementById("newP-page").style.display = "none";
 	document.getElementById("returnP-page").style.display = "none";

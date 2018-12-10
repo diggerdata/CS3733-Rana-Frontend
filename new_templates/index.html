@@ -92,7 +92,25 @@
     width: 25%;
   }
 
-  #organizer-view, #participant-view, #searchList, #createMode, #reviewMode, #sysadminMode{
+  /* basic positioning */
+  .legend-box {
+    list-style: none;
+  }
+
+  .legend-box li {
+    float: left;
+    margin-right: 10px;
+  }
+
+  .legend-box span {
+    border: 1px solid black;
+    float: left;
+    width: 12px;
+    height: 12px;
+    margin: 2px;
+  }
+
+  #organizer-view, #participant-view, #searchList, #createMode, #reviewMode, #sysadminMode, #meeting-legend{
     display: none;
   }
 
@@ -208,13 +226,20 @@
       <!-- Schedule -->
       <div class="container-inside">
         <div>
-          <h2>Schedule Name</h2>
-          <h4>Organizer: </h4>
+          <h2 id="review-scheduleName"></h2>
+          <!-- <h4>Organizer: </h4> -->
         </div>
 
         <div class="schedule-button-container">
           <button type="button" onclick="previousWeek()"><</button>
-          <button type="button">Schedule</button>
+          <div>
+            <ul class="legend-box">
+                <li><span id="freeslot-legend" style="background-color: lightgreen;"></span>Free</li>
+                <li><span id="closedslot-legend" style="background-color: grey"></span>Closed</li>
+                <li id="meeting-legend"><span id="meetingslot-legend" style="background-color: lightyellow"></span>Meeting</li>
+            </ul>
+          </div>
+          <!-- <button type="button">Schedule</button> -->
           <button type="button" onclick="nextWeek()">></button>
         </div>
 
