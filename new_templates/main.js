@@ -34,14 +34,18 @@ function getView(){
   } else { // get schedule ID
     var index = n+6;
 		scheduleid = schedule_url.substring(index);
-    if (scheduleid == "") { // check ID existence
+		var isnum = /^\d+$/.test(scheduleid);
+    if (scheduleid == "" && !isnum) { // check ID existence
       alert("Can't view a schedule without a schedule ID!");
       window.location.href = "index.html";
-    } else { // review schedule view
+    } else if (isnum) { // review schedule view
       createMode.style.display = "none";
       reviewMode.style.display = "block";
       getSchedule();
-    }
+    } else if (scheduleid == "sysadmin"){
+			document.getElementById("sysadminMode").style.display = "block";
+			alert("In sys admin view!");
+		}
   }
 }
 
@@ -120,19 +124,22 @@ function validateScheduleCreation() {
 		}
 	}
 
+	console.log(object);
+
 	return createSchedule(object);
 
 }
 
 function createSchedule(obj) {
 	var request = new XMLHttpRequest();
-
 	request.responseType = "json";
-	request.open("POST", post_url, true);
+	request.open("POST", url, true);
 	request.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
 
 	request.onload = function(){
+		alert("onload!");
 		if(this.response.status == "success"){
+			alert("meh");
 			secretcode = this.response.secret_code;
 			scheduleid = this.response.schedule_id;
 			console.log(this.response);
@@ -145,11 +152,9 @@ function createSchedule(obj) {
       }
 
       // changes the view to review
-      userType = "organizer";
-      getView();
-      validateUser();
-      getSchedule();
-
+			toOrganizer();
+			getView();
+			getSchedule();
       // adds secret code to text field
       document.getElementById("o-secretcode").value = secretcode;
 		}else{
@@ -157,6 +162,7 @@ function createSchedule(obj) {
 			return false;
 		}
 	};
+
 
 	request.send(JSON.stringify(obj));
 
@@ -183,17 +189,17 @@ function getSchedule(){
 		var data = JSON.parse(this.response);
 		console.log(data);
 
-		// save organizer username
-		document.getElementById("organizer-username").innerHTML = "Organizer";// data.organizername
-
-    // get day of first time slot to determine where it gets placeholder
-    var startDay = (new Date(data.timeslots[0].start_date)).getDay(); // Mon = 1; Tue = 2; Wed = 3; Thur = 4; Fri = 5
-    var endDay = (new Date(data.timeslots[data.timeslots.length - 1].start_date)).getDay();
-
-		// Gets the start date and end date to figure out how to show other weeks
-    setScheduleWeekTracking(data.timeslots[0].start_date, data.end_date);
-
 		if (request.status >= 200 && request.status < 400) {
+
+			// save organizer username
+			document.getElementById("organizer-username").innerHTML = "Organizer";// data.organizername
+
+			// get day of first time slot to determine where it gets placeholder
+			var startDay = (new Date(data.timeslots[0].start_date)).getDay(); // Mon = 1; Tue = 2; Wed = 3; Thur = 4; Fri = 5
+			var endDay = (new Date(data.timeslots[data.timeslots.length - 1].start_date)).getDay();
+
+			// Gets the start date and end date to figure out how to show other weeks
+			setScheduleWeekTracking(data.timeslots[0].start_date, data.end_date);
 
 			var calendarBody = document.getElementById("schedulerTableBody");
 
@@ -254,10 +260,12 @@ function getSchedule(){
 					}
 				}
 			}
+			tableFunction();
 		} else {
-			alert("Error!");
+			alert("This schedule does not exist!");
+			window.location.href = "index.html";
 		}
-		tableFunction();
+
 	}
 
 	request.addEventListener("loadend", loadEnd);
@@ -331,11 +339,11 @@ function rebuildSchedule(){
 		var data = JSON.parse(this.response);
 		console.log(data);
 
-    // get day of first time slot to determine where it gets placeholder
-    var startDay = (new Date(data.timeslots[0].start_date)).getDay(); // Mon = 1; Tue = 2; Wed = 3; Thur = 4; Fri = 5
-    var endDay = (new Date(data.timeslots[data.timeslots.length - 1].start_date)).getDay();
-
 		if (request.status >= 200 && request.status < 400) {
+			// get day of first time slot to determine where it gets placeholder
+	    var startDay = (new Date(data.timeslots[0].start_date)).getDay(); // Mon = 1; Tue = 2; Wed = 3; Thur = 4; Fri = 5
+	    var endDay = (new Date(data.timeslots[data.timeslots.length - 1].start_date)).getDay();
+
 			// traverse all of table and match IDs
 	    var calendarTable = document.getElementById("schedulerTable");
 
@@ -385,10 +393,11 @@ function rebuildSchedule(){
 					}
 				}
 			}
+			tableFunction();
 		} else {
 			alert("Error!");
 		}
-		tableFunction();
+
 	}
 
 	request.addEventListener("loadend", loadEnd);
@@ -490,7 +499,11 @@ function createMeeting(username, email, id){
 	request.onload = function(){
     var data = this.response;
     console.log(data);
-    refreshTable();
+		if (request.status >= 200 && request.status < 400) {
+			refreshTable();
+			document.getElementById("p-secretcode").value = data.secret_code;
+			toParticipant();
+		}
 	};
 
   var jsonObj = {username: username, email: email};
@@ -705,10 +718,15 @@ function getPreviousWeek(date){
 
 function getWeekRange(){
   // Example return " March 3, 2018 - March 9, 2018"
-  var lastDayOfWeek;
-  lastDayOfWeek = new Date(currWeek.getTime());
-  lastDayOfWeek.setDate(currWeek.getDate() + 4);
-  return getWeekString(currWeek)+" - "+getWeekString(lastDayOfWeek);
+	if (currWeek != null){
+		var lastDayOfWeek;
+		lastDayOfWeek = new Date(currWeek.getTime());
+		lastDayOfWeek.setDate(currWeek.getDate() + 4);
+		return getWeekString(currWeek)+" - "+getWeekString(lastDayOfWeek);
+	} else {
+		return "";
+	}
+
 }
 
 function getWeekString(date){
@@ -722,8 +740,12 @@ function getWeekString(date){
 
 function toOrganizer(){
 	usertype = "organizer";
-	secretcode = document.getElementById("o-secretcode").value;
-	refreshTable();
+	if (document.getElementById("reviewMode").style.display == "block"){
+		secretcode = document.getElementById("o-secretcode").value;
+		refreshTable();
+	}
+	// document.getElementById("o-secretcode").disabled = true;
+	document.getElementById("o-button").style.display = "none";
 	document.getElementById("newP-page").style.display = "none";
 	document.getElementById("returnP-page").style.display = "none";
 	document.getElementById("organizer-view").style.display = "block";
@@ -798,7 +820,9 @@ function getAvailableTimeslots() {
 function toParticipant(){
 	secretcode = document.getElementById("p-secretcode").value;
 	getMeeting();
+	// document.getElementById("p-secretcode").disabled = true;
+	document.getElementById("p-button").style.display = "none";
 	document.getElementById("newP-page").style.display = "none";
 	document.getElementById("returnP-page").style.display = "block";
-	document.getElementById("organizer-view").style.display = "none";
+	document.getElementById("organizer-page").style.display = "none";
 }

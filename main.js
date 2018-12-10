@@ -11,6 +11,7 @@ var firstMonday, lastDate, currWeek;
 
 function getView(){
   // Depending on URL, gets the type of view - Create Schedule or Review Schedule
+  console.log("getView()");
   var schedule_url = window.location.href;
   var n = schedule_url.indexOf(".html?");
   var createMode = document.getElementById("createMode");
@@ -43,6 +44,7 @@ Create Schedule JavaScript Functions
 */
 
 function validateScheduleCreation() {
+  console.log("validateScheduleCreation()");
 	// this is so ugly - needs refactoring
 
 	// TODO better way to refactor obtaining all the elements in the Form?
@@ -118,6 +120,7 @@ function validateScheduleCreation() {
 }
 
 function createSchedule(obj) {
+  console.log("createSchedule()");
 	var request = new XMLHttpRequest();
 
 	request.responseType = "json";
@@ -163,6 +166,7 @@ Review Schedule JavaScript Functions
 */
 
 function changeView(arg){
+  console.log("changeView()");
   if (arg){
     userType = "organizer";
   } else {
@@ -173,6 +177,7 @@ function changeView(arg){
 }
 
 function tableFunction(){
+  console.log("tableFunction()");
   // Table Script
   var table = document.getElementById("calendar");
   var rIndex, cIndex;
@@ -194,6 +199,7 @@ function tableFunction(){
 }
 
 function selectSlot(id){
+  console.log("selectSlot()");
   console.log("free slot selected: "+id);
   var username = document.forms["createMeetingForm"]["userName"].value;
 
@@ -213,6 +219,7 @@ function selectSlot(id){
 
 // TODO Janky Back end for now
 function createMeeting(username, id){
+  console.log("createMeeting()");
   var request = new XMLHttpRequest();
   var meeting_url = post_url + scheduleid + "/" + "timeslot/" + id;
   console.log(meeting_url);
@@ -235,6 +242,7 @@ function createMeeting(username, id){
 
 // TODO How to even implement this??
 function getMeeting(code){
+  console.log("getMeeting()");
   var request = new XMLHttpRequest();
   var meeting_url = post_url + scheduleid + "/" + "timeslot/";
   request.open('GET', meeting_url, true);
@@ -258,6 +266,7 @@ function getMeeting(code){
 }
 
 function getSchedule(){
+  console.log("getSchedule()");
   var request = new XMLHttpRequest();
   request.open('GET', post_url+scheduleid, true);
   request.onload = function () {
@@ -285,6 +294,7 @@ function getSchedule(){
 }
 
 function setScheduleWeekTracking(start, end){
+  console.log("setScheduleWeekTracking()");
   lastDate = new Date(end);
 
   var a = new Date(start);
@@ -297,6 +307,7 @@ function setScheduleWeekTracking(start, end){
 }
 
 function validateUser(){
+  console.log("validateUser()");
   var secretcode = document.getElementById("secretCode").value;
   var participant = document.getElementById("participantView");
   var organizer = document.getElementById("organizerView");
@@ -319,6 +330,7 @@ function validateUser(){
 }
 
 function toggleCalendar(arg) {
+  console.log("toggleCalendar()");
 	var calDiv = document.getElementById("calendarView");
 	var weekBtn = document.getElementsByClassName("cal-btn");
 	var showDiv = document.getElementById("showCal");
@@ -348,6 +360,7 @@ function toggleCalendar(arg) {
 }
 
 function showTimeSlots() {
+  console.log("showTimeSlots()");
 
   var weekRange = document.getElementById("weekRange");
   weekRange.innerHTML = "<b>Week: </b>"+getWeekRange();
@@ -449,6 +462,7 @@ function showTimeSlots() {
 }
 
 function previousWeek() {
+  console.log("previousWeek()");
   // TODO: implement previous week
   if (week > 0) {
     currWeek = getPreviousWeek(currWeek);
@@ -461,6 +475,7 @@ function previousWeek() {
 }
 
 function nextWeek() {
+  console.log("nextWeek()");
   // TODO: implement next week
   // TODO: check if end date is in next week (get correct 'end' date)
   var previousWeek = currWeek;
@@ -475,6 +490,7 @@ function nextWeek() {
 }
 
 function reloadCalendar(){
+  console.log("reloadCalendar()");
   var new_body = document.createElement("tbody");
   new_body.id = "calendarBody";
   var old_body = document.getElementById("calendarBody");
@@ -483,6 +499,7 @@ function reloadCalendar(){
 }
 
 function getNextWeek(date){
+  console.log("getNextWeek()");
   var resultDate = new Date(date.getTime());
   resultDate.setDate(date.getDate() + 7);
   if (onLastWeek(date)){
@@ -493,6 +510,7 @@ function getNextWeek(date){
 }
 
 function onLastWeek(date){
+  console.log("onLastWeek()");
   // get lastDate and current week and compares
   for (var num = 0; num < 5; num++){
     var newDate = new Date(date.getTime());
@@ -506,6 +524,7 @@ function onLastWeek(date){
 }
 
 function isSameDate(date1, date2){
+  console.log("isSameDate()");
   // checks if both dates (month day year) are the same
   if (date1.getMonth() == date2.getMonth()
   && date1.getFullYear() == date2.getFullYear()
@@ -516,12 +535,14 @@ function isSameDate(date1, date2){
 }
 
 function getPreviousWeek(date){
+  console.log("getPreviousWeek()");
   var resultDate = new Date(date.getTime());
   resultDate.setDate(date.getDate() - 7);
   return resultDate;
 }
 
 function getWeekRange(){
+  console.log("getWeekRange()");
   // Example return " March 3, 2018 - March 9, 2018"
   var lastDayOfWeek;
   lastDayOfWeek = new Date(currWeek.getTime());
@@ -530,11 +551,13 @@ function getWeekRange(){
 }
 
 function getWeekString(date){
+  console.log("getWeekString()");
   // sketch soltion lol
   return date.toString().substring(4, 15);
 }
 
 function deleteSchedule() {
+  console.log("deleteSchedule()");
 	var answer = confirm("Are you sure you want to delete this schedule?");
 	if (answer) {
 		// schedule is deleted and returns back to home page
@@ -597,7 +620,7 @@ function getAvailableTimeslots() {
     option.text = dummyTimeSlotStrings[i];
     x.add(option);
   }
-  
+
   // celebrate
 
   // return array of timeslots
@@ -663,4 +686,3 @@ function getAvailableTimeslots() {
   - In Participant view, both "closed" and "meeting" timeslots look the same with no information provided (grey)
   - Authenticate returning participant and organizer using secret code
 */
-
