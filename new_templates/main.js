@@ -759,6 +759,31 @@ function getWeekString(date){
 	Organizer Functions
 */
 
+function authenticateOrganizer(){
+  var osecretcode = document.getElementById("o-secretcode");
+  console.log("Authenticating Organizer...");
+  var request = new XMLHttpRequest();
+  var auth_url = url+scheduleid+"/authenticate";
+	console.log(auth_url);
+  request.open('GET', auth_url, true);
+	request.setRequestHeader('Authorization', osecretcode.value);
+	request.onload = function () {
+		var data = JSON.parse(this.response);
+		console.log(data);
+
+		if (request.status >= 200 && request.status < 400) {
+      toOrganizer();
+		} else {
+			alert("Incorrect Secret Code!");
+		}
+
+
+	}
+
+	request.send();
+}
+
+
 function toOrganizer(){
 	usertype = "organizer";
 	if (document.getElementById("reviewMode").style.display == "block"){
