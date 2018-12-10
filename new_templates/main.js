@@ -137,13 +137,11 @@ function createSchedule(obj) {
 	request.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
 
 	request.onload = function(){
-		alert("onload!");
 		if(this.response.status == "success"){
-			alert("meh");
 			secretcode = this.response.secret_code;
 			scheduleid = this.response.schedule_id;
 			console.log(this.response);
-			alert("Calendar Successfully Created!\nSecret Code is: "+ secretcode);
+			alert("Schedule Successfully Created!\nSecret Code is: "+ secretcode);
 
       // doesn't refresh the page
       if (history.pushState){
@@ -154,7 +152,6 @@ function createSchedule(obj) {
       // changes the view to review
 			toOrganizer();
 			getView();
-			getSchedule();
       // adds secret code to text field
       document.getElementById("o-secretcode").value = secretcode;
 		}else{
