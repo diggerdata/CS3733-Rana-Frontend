@@ -510,7 +510,7 @@ function createMeeting(username, email, id){
 		if (request.status >= 200 && request.status < 400) {
 			refreshTable();
 			document.getElementById("p-secretcode").value = data.secret_code;
-			toParticipant();
+			getMeeting();
 		}
 	};
 
@@ -537,12 +537,13 @@ function getMeeting(){
 
 		if (request.status >= 200 && request.status < 400) {
       secretcode = psecretcode.value;
+      toParticipant();
 			pview.style.display = "block";
 			pusername.innerHTML = data.username;
       meetTSID = data.timeslot_id;
 			pmeetingslot.innerHTML = getMeetingString(new Date(data.start_date), data.duration);
 		} else {
-			alert("error!");
+			alert("Incorrect Secret Code or \nMeeting no longer exists");
 		}
 
 
@@ -865,8 +866,6 @@ function getAvailableTimeslots() {
 */
 
 function toParticipant(){
-	secretcode = document.getElementById("p-secretcode").value;
-	getMeeting();
 	// document.getElementById("p-secretcode").disabled = true;
 	document.getElementById("p-button").style.display = "none";
 	document.getElementById("newP-page").style.display = "none";
