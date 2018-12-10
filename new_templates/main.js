@@ -2,6 +2,7 @@ var url = "https://wxasuozkgb.execute-api.us-east-2.amazonaws.com/dev/schedule/"
 // var scheduleid = 20;
 // var secretcode = "nVOcXklPLV";
 var scheduleid;
+var meetTSID;
 var secretcode = "";
 var usertype = ""; //organizer
 var maxRow; // gets the timeslots per day
@@ -9,6 +10,10 @@ var maxRow; // gets the timeslots per day
 // schedule week tracking
 var week = 0;
 var firstDate, lastDate, currWeek;
+
+function testFunction(){
+  console.log("Test");
+}
 
 // TODO:
 /*
@@ -407,6 +412,11 @@ function loadEnd(e) {
 	weekRange.innerHTML = getWeekRange();
 }
 
+function meetingLoadEnd(e) {
+  alert("Meeting Cancelled!");
+  window.location.reload();
+}
+
 function tableFunction(){
   var calendarTable = document.getElementById("schedulerTable");
   var rIndex, cIndex;
@@ -525,9 +535,11 @@ function getMeeting(){
 		console.log(data);
 
 		if (request.status >= 200 && request.status < 400) {
+      secretcode = psecretcode.value;
 			pview.style.display = "block";
 			pusername.innerHTML = data.username;
-			pmeetingslot.innerHTML = getMeetingString("2018-03-02", 15);
+      meetTSID = data.timeslot_id;
+			pmeetingslot.innerHTML = getMeetingString(new Date(data.start_date), data.duration);
 		} else {
 			alert("error!");
 		}
@@ -537,6 +549,11 @@ function getMeeting(){
 
 	request.send();
 
+}
+
+function cancelPMeeting(){
+  console.log("CancelPMeeting", meetTSID);
+  cancelMeeting(meetTSID);
 }
 
 function cancelMeeting(id){
@@ -551,8 +568,14 @@ function cancelMeeting(id){
 	request.onload = function(){
     var data = this.response;
     console.log(data);
-    refreshTable();
+    if (request.status >= 200 && request.status < 400) {
+      refreshTable();
+    } else {
+      alert("Meeting does not exist!");
+    }
 	};
+
+  request.addEventListener("loadend", meetingLoadEnd);
 
 	request.send();
 }
