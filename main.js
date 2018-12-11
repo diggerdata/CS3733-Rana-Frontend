@@ -215,7 +215,25 @@ function getSchedule(){
       var colSlot = 0;
 
 			// Time slots per day
-			var dayHours = data.end_time - data.start_time;
+      var timeoffset = (new Date()).getTimezoneOffset()/60;
+      var endtime;
+      var starttime;
+
+      // convert end time and start time
+      if (data.end_time - timeoffset <= 0) {
+        endtime = 24 - (timeoffset - data.end_time);
+      } else {
+        endtime = data.end_time - timeoffset
+      }
+
+      if (data.start_time - timeoffset <= 0) {
+        starttime = 24 - (timeoffset - data.start_time);
+      } else {
+        starttime = data.start_time - timeoffset;
+      }
+
+			var dayHours = endtime - starttime;
+      console.log(dayHours);
 			var timeSlotsInHour = data.duration/60;
 			maxRow = dayHours/timeSlotsInHour;
 
