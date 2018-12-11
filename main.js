@@ -95,7 +95,6 @@ function validateScheduleCreation() {
 	}
 
   if (e_time <= s_time) {
-    console.log(e_time, s_time);
 		alert("Start time cannot be greater than or equal to the end time!");
 		return false;
 	}
@@ -124,11 +123,12 @@ function validateScheduleCreation() {
 	formData.append('duration', slotduration);
 	formData.append('username', username);
 	formData.append('email', email);
+  formData.append('hours', (e_time - s_time));
 
 	var object = {};
 	for (const [key, value]  of formData.entries()) {
 		object[key] = value;
-		if (key == "duration") {
+		if (key == "duration" || key == "hours") {
 			object[key] = parseInt(value);
 		}
 	}
