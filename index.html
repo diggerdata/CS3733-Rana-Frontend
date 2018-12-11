@@ -1,337 +1,390 @@
 <!DOCTYPE html>
 <html>
-<!-- <style>
+<style>
+  .openSlot {
+    background-color: lightgreen;
+  }
 
-	.slot-btn {
-		display: block;
-		margin: auto;
-    	background: transparent;
-    	border: none !important;
-		width: 100%;
-	}
+  .closedSlot {
+    background-color: grey;
+  }
 
-	.cal-btn, #hideCal, #showCal, #calendarView, #timeSlotListOptions {
-		display:none;
-	}
+  .meetingSlot {
+    background-color: lightyellow;
+    text-align: center;
+  }
 
-	#toggleBtn, #cancelBtn {
-		disabled: false;
-	}
+  table {
+    border-spacing: 0;
+    border-collapse: collapse;
+  }
 
-	.availableSlot:hover {
-		background-color: limegreen;
-		/* cursor: pointer; */
-	}
+  table, th, td {
+    border: 1px solid black;
+    cursor: context-menu;
+  }
 
-	.availableSlot {
-		background-color: lightgreen;
-	}
+  .container-create {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    align-items: center;
+  }
 
-	.unavailableSlot {
-		background-color: red;
-	}
+  .container-create-row {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: flex-start;
+  }
 
-	#reviewView, #organizerView, #participantView, #createMode, #reviewMode {
-		display: none;
-	}
+  .container-create-column {
+    margin:30px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    align-items: center;
+  }
 
-</style> -->
+  .container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    align-items: flex-start;
+  }
+
+  .container-inside {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+  }
+
+  .websiteTitle {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .websiteTitle img {
+    width: 5%;
+  }
+
+  .schedule-button-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+  .container-time {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+  }
+
+  .container-center {
+    display: flex;
+    align-self: center;
+  }
+
+  .container-small {
+    display: flex;
+    width: 25%;
+  }
+
+  /* basic positioning */
+  .legend-box {
+    list-style: none;
+  }
+
+  .legend-box li {
+    float: left;
+    margin-right: 10px;
+  }
+
+  .legend-box span {
+    border: 1px solid black;
+    float: left;
+    width: 12px;
+    height: 12px;
+    margin: 2px;
+  }
+
+  #organizer-view, #participant-view, #searchList, #createMode, #reviewMode, #sysadminMode, #meeting-legend{
+    display: none;
+  }
+
+  #weekRange {
+    align-content: center;
+  }
+
+</style>
 <head>
-	<!-- meta charset -->
-	<title>Rana Scheduler App</title>
-	<!-- css -->
+	<title>Rana Scheduler</title>
 	<script src="main.js"></script>
-	<link rel="stylesheet" type="text/css" href="create_schedule.css">
-	<!-- <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css" integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous"> -->
-	<!-- <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.0/build/pure-min.css" integrity="sha384-nn4HPE8lTHyVtfCBi5yW9d20FjT8BJwUXyWZT9InLYax14RDjBj46LmSztkmNP9w" crossorigin="anonymous"> -->
-	<!-- Compiled and minified CSS -->
-  <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css"> -->
-  <!-- <link rel="stylesheet" href="https://unpkg.com/spectre.css/dist/spectre.min.css"> -->
-  <!-- <link rel="stylesheet" href="https://unpkg.com/mustard-ui@latest/dist/css/mustard-ui.min.css"> -->
-  <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.2/css/bulma.css"> -->
-  <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.css"> -->
 </head>
 
 <body onload="getView()">
-	<div id="header" class="header">
-		<img src="rana_logo.png" alt="Rana Scheduler Logo" style="float:left; width: 12%;">
-		<h1>Rana Scheduler</h1>
-	</div>
-  	<div id="createMode">
-		<div class="container">
-			<!-- TODO remove commented disabled options after complete -->
-			<form id="createForm" name= "createScheduleForm" onsubmit="return validateScheduleCreation()">
-				<div class="row">
-					<h2>Create Schedule</h2>
-				</div>
-				<div class="row">
-					<div class="col-label">
-						<label for="scheduleName">Schedule Name:</label>
-					</div>
-					<div class="col-input">
-						<input type="text" name="scheduleName" id="scheduleName" placeholder="Name" required>
-					</div>
-				</div>
-				<div class="row">
-					<div class="col-label">
-						<label for="startDate">Start Date:</label>
-					</div>
-					<div class="col-input">
-						<input type="date" name="startDate" id="startDate" value="2018-01-01" required>
-					</div>
-				</div>
-				<div class="row">
-					<div class="col-label">
-						<label for="endDate">End Date:</label>
-					</div>
-					<div class="col-input">
-						<input type="date" name="endDate" id="endDate" value="2018-02-02" required>
-					</div>
-				</div>
-				<div class="row">
-					<div class="col-label">
-						<label for="startTime">Start Time:</label>
-					</div>
-					<div class="col-input">
-						<select name="startTime" id="startTime" required>
-							<option disabled selected value> -- Select a time -- </option>
-							<option value="1">1:00</option>
-							<option value="2">2:00</option>
-							<option value="3">3:00</option>
-							<option value="4">4:00</option>
-							<option value="5">5:00</option>
-							<option value="6">6:00</option>
-							<option value="7">7:00</option>
-							<option value="8">8:00</option>
-							<option value="9">9:00</option>
-							<option value="10">10:00</option>
-							<option value="11">11:00</option>
-							<option value="12">12:00</option>
-						</select>
-						<select name="stType" id="stType" required>
-							<option value="AM">AM</option>
-							<option value="PM">PM</option>
-						</select>
-					</div>
-				</div>
-				<div class="row">
-					<div class="col-label">
-						<label for="endTime">End Time:</label>
-					</div>
-					<div class="col-input">
-						<select name="endTime" id="endTime" required>
-							<option disabled selected value> -- Select a time -- </option>
-							<option value="1">1:00</option>
-							<option value="2">2:00</option>
-							<option value="3">3:00</option>
-							<option value="4">4:00</option>
-							<option value="5">5:00</option>
-							<option value="6">6:00</option>
-							<option value="7">7:00</option>
-							<option value="8">8:00</option>
-							<option value="9">9:00</option>
-							<option value="10">10:00</option>
-							<option value="11">11:00</option>
-							<option value="12">12:00</option>
-						</select>
-						<select name="etType" id="etType" required>
-							<option value="AM">AM</option>
-							<option value="PM">PM</option>
-						</select>
-					</div>
-				</div>
-				<div class="row">
-					<div class="col-label">
-						<label for="slotDuration">Slot Duration:</label>
-					</div>
-					<div class="col-input">
-						<select name="slotDuration" id="slotDuration" required>
-							<option disabled selected value> -- Select duration in minutes -- </option>
-							<option value="10">10</option>
-							<option value="15">15</option>
-							<option value="20">20</option>
-							<option value="30">30</option>
-							<option value="60">60</option>
-						</select>
-					</div>
-				</div>
-				<div class="row">
-					<div class="col-label">
-						<label for="userName">User Name:</label>
-					</div>
-					<div class="col-input">
-						<input type="text" name="userName" id="userName" placeholder="Username" required>
-					</div>
-				</div>
-				<div class="row">
-					<div class="col-label">
-						<label for="userEmail">User Email:</label>
-					</div>
-					<div class="col-input">
-						<input type="email" name="userEmail" id="userEmail" placeholder="email@website.com" required>
-					</div>
-				</div>
-				<div class="row">
-					<input type="submit" value="Create Schedule">
-				</div>
-			</form>
-		</div>
+  <div class = "websiteTitle">
+    <img src="rana_logo.png" alt="Rana Scheduler Logo">
+    <h1>&nbsp; Rana Scheduler</h1>
+  </div>
 
-  	</div>
+  <br>
 
-    <div id="reviewMode">
-		<div id="reviewView">
-			<div class="logo">
-				<img src="rana_logo.png" alt="Rana Scheduler Logo" style="float:left; width: 10%;">
-			</div>
+  <!-- Create Schedule -->
+  <div id="createMode">
+    <form id="createForm" name= "createScheduleForm" onsubmit="return validateScheduleCreation()">
+      <div class="container-create">
+        Schedule Name: <br>
+        <input type="text" name="scheduleName" id="scheduleName" placeholder="Schedule Name"required>
+        <br><div class="container-create-row">
 
-			<div>
-	  		<h1 id="rScheduleName"></h1>
-	  	</div>
+          <!-- Start and End dates -->
+          <div class="container-create-column">
+            Start Date: <br>
+            <input type="date" name="startDate" id="startDate" required>
+            <br>End Date: <br>
+            <input type="date" name="endDate" id="endDate" required>
+          </div>
 
-			<div id="viewChooser">
-				<p>Who are you?</p>
-				<button type="button" onclick="changeView(true)">Organizer</button>
-				<button type="button" onclick="changeView(false)">Returning Participant</button>
-			</div>
+          <!--  Start and End times -->
+          <div class="container-create-column">
+            Start Time: <br>
+            <div class="container-time">
+              <select name="startTime" id="startTime" required>
+                <option disabled selected value> -- Select a time -- </option>
+                <option value="1">1:00</option>
+                <option value="2">2:00</option>
+                <option value="3">3:00</option>
+                <option value="4">4:00</option>
+                <option value="5">5:00</option>
+                <option value="6">6:00</option>
+                <option value="7">7:00</option>
+                <option value="8">8:00</option>
+                <option value="9">9:00</option>
+                <option value="10">10:00</option>
+                <option value="11">11:00</option>
+                <option value="12">12:00</option>
+              </select>
+              <select name="stType" id="stType" required>
+                <option value="AM">AM</option>
+                <option value="PM">PM</option>
+              </select>
+            </div>
+            <br>End Time: <br>
+            <div class="container-time">
+              <select name="endTime" id="endTime" required>
+                <option disabled selected value> -- Select a time -- </option>
+                <option value="1">1:00</option>
+                <option value="2">2:00</option>
+                <option value="3">3:00</option>
+                <option value="4">4:00</option>
+                <option value="5">5:00</option>
+                <option value="6">6:00</option>
+                <option value="7">7:00</option>
+                <option value="8">8:00</option>
+                <option value="9">9:00</option>
+                <option value="10">10:00</option>
+                <option value="11">11:00</option>
+                <option value="12">12:00</option>
+              </select>
+              <select name="etType" id="etType" required>
+                <option value="AM">AM</option>
+                <option value="PM">PM</option>
+              </select>
+            </div>
+            <br>Duration: <br>
+            <select name="slotDuration" id="slotDuration" required>
+              <option disabled selected value> -- Select duration in minutes -- </option>
+              <option value="10">10 minutes</option>
+              <option value="15">15 minutes</option>
+              <option value="20">20 minutes</option>
+              <option value="30">30 minutes</option>
+              <option value="60">60 minutes</option>
+            </select>
+          </div>
 
-			<br>
+          <!-- Name and Email -->
+          <div class="container-create-column">
+            Username: <br>
+            <input type="text" name="userName" id="userName" placeholder="Username" required>
+            <br> Email: <br>
+            <input type="email" name="userEmail" id="userEmail" placeholder="email@website.com" required>
+          </div>
 
-	  	<div>
-	  		<form id="secretCodeForm" name= "secretCodeForm">
-	  			<fieldset>
-	  				<legend>Secret Code</legend>
-	  				<input id="secretCode" type="text" placeholder="Secret Code" required>
-	  				<!-- <button type ="submit">Submit</button> -->
-	  			</fieldset>
-	  		</form>
-	  	</div>
+        </div>
+        <br><input type="submit" value="Create Schedule">
+      </div>
+    </form>
 
-	  	<br>
+  </div>
 
-	  	<div>
-	  		<button id="showCal" type="button" name="showCalendar" onclick="return toggleCalendar(true)">Show Calendar</button>
-	  		<button id="hideCal" type="button" name="hideCalendar" onclick="return toggleCalendar(false)">Hide Calendar</button>
-	  		<button id="prev-btn" class= "cal-btn" type="button" name="previousWeek" onclick="previousWeek()">Previous</button>
-	  		<button id="next-btn" class= "cal-btn" type="button" name="nextWeek" onclick="nextWeek()">Next</button>
-	  	</div>
+  <!-- Review Schedule -->
+  <div id ="reviewMode">
+    <div class="container">
+      <!-- Schedule -->
+      <div class="container-inside">
+        <div>
+          <h2 id="review-scheduleName"></h2>
+          <!-- <h4>Organizer: </h4> -->
+        </div>
 
-	  	<br>
+        <div class="schedule-button-container">
+          <button type="button" onclick="previousWeek()"><</button>
+          <div>
+            <ul class="legend-box">
+                <li><span id="freeslot-legend" style="background-color: lightgreen;"></span>Free</li>
+                <li><span id="closedslot-legend" style="background-color: grey"></span>Closed</li>
+                <li id="meeting-legend"><span id="meetingslot-legend" style="background-color: lightyellow"></span>Meeting</li>
+            </ul>
+          </div>
+          <!-- <button type="button">Schedule</button> -->
+          <button type="button" onclick="nextWeek()">></button>
+        </div>
 
-	  	<div id="calendarView">
-				<p id="weekRange"></p>
-	  		<table id="calendar" border="0">
-	  			<thead id="calendarHead">
-	  				<th>Time</th>
-	  				<th>Monday</th>
-	  				<th>Tuesday</th>
-	  				<th>Wednesday</th>
-	  				<th>Thursday</th>
-	  				<th>Friday</th>
-	  			</thead>
-	  			<tbody id="calendarBody">
-	  				<!-- Add body -->
-	  			</tbody>
-	  		</table>
-	  	</div>
+        <div class="container-center">
+          <p id="weekRange"></p>
+        </div>
 
-	  	<br>
+        <div>
+          <table id="schedulerTable">
+            <thead id="schedulerTableHead">
+              <th scope = "col" id="head5">Time</th>
+              <th scope = "col" id="head0">Monday</th>
+              <th scope = "col" id="head1">Tuesday</th>
+              <th scope = "col" id="head2">Wednesday</th>
+              <th scope = "col" id="head3">Thursday</th>
+              <th scope = "col" id="head4">Friday</th>
+            </thead>
+            <tbody id="schedulerTableBody">
+              <!-- Add body -->
+            </tbody>
+          </table>
+        </div>
+      </div>
 
-	  	<div id="initView">
-	  		<!-- Initial View when entering the site.. everyone's a participant until entering the secret code -->
-	  		<div>
-	  			<form name= "createMeetingForm">
-	  				<fieldset>
-	  					<legend>Create Meeting</legend>
-	  					Name: <input type="text" name="userName" placeholder="User Name">
-	  					<!--
-	  						Need to have an empty timeslot selected
-	  					-->
-	  					<!-- <button type="submit">Set Meeting</button> -->
-	  				</fieldset>
-	  			</form>
-	  		</div>
+      <!-- Info -->
+      <div class="container-inside container-small">
+        <div class = "container-inside" id="newP-page">
+          <h3>User Details</h3>
+          Name: <input type="text" placeholder="John Smith" id="username">
+          Email: <input type="email" placeholder="example@gmail.com" id="useremail">
 
-	  		<br>
+          <div>
+            <h4>Search for TimeSlots</h4>
+            <button type="button" onclick="getAvailableTimeslots()" disabled>Find TimeSlots</button><br><br>
+  					Year: <select id="yearSearch" disabled></select>
+  					Month: <select id="monthSearch" disabled></select>
+  					Weekday: <select id="weekdaySearch" disabled></select>
+  					Day: <select id="daySearch" disabled></select>
+  					Hour: <select id="hourSearch" disabled></select>
+          </div>
 
-	  		<div>
-	  			<!-- <form name="searchTimeSlotForm" onsubmit="getAvailableTimeslots()">
-	  				<fieldset> -->
-	  					<legend>Search for TimeSlots</legend>
-	  					Year: <select id="yearSearch"></select>
-	  					Month: <select></select>
-	  					Weekday: <select></select>
-	  					Day: <select></select>
-	  					Hour: <select></select>
-	  					<button type="button" onclick="getAvailableTimeslots()">Find TimeSlots</button>
-	  				<!-- </fieldset>
-				  </form> -->
-				  <!-- Eamon is working on making this a scrollable table VVV -->
-				  <form name = "timeSlotList">
-					<select id="timeSlotListOptions"></select>
-				</form>
-	  			<!--
-	  				Should be able to search for time slots using a filters
-	  			-->
-	  		</div>
-	  	</div>
+          <br>
 
-	  	<div id="organizerView">
-	  		<!-- Organizer View when Organizer enters correct secret code -->
+          <div id="searchList">
+            <form name = "timeSlotList">
+    					<select id="timeSlotListOptions"></select>
+              <br><button type="button">Create Meeting</button>
+    				</form>
+          </div>
 
-	  		<!-- <div id="shareBtn">
-	  			<button type="button">Share</button>
-	  		</div> -->
+        </div>
 
-	  		<div id="extenddatesID">
-	  			<form name="extendDates">
-	  				<fieldset>
-	  					<legend>Extend Dates</legend>
-	  					<!--
-	  						Place current start date and end date as place holders?
-	  					-->
-	  					Start Date: <input type="date" name="startDate">
-	  					End Date: <input type="date" name="endDate">
-	  					<button type="submit">Extend</button>
-	  				</fieldset>
-	  			</form>
-	  		</div>
+        <div class="user-view" id="organizer-page">
+          <h3>Organizer</h3>
+          <input type="text" placeholder="Secret Code" id="o-secretcode">
+          <button id="o-button" onclick="authenticateOrganizer()">Enter</button>
+          <br><br>
+          <div id="organizer-view">
+            <!-- <h3>Organizer View</h3> -->
+            <!-- <p>Hi <span id="organizer-username"></span></p> -->
+            <!-- <button onclick="">Edit</button>
+            <br><br> -->
+            <div>
+              <form>
+                <fieldset>
+                  <legend>Extend Dates</legend>
+                  Start Date:<br> <input type="date" disabled><br>
+                  End Date:<br> <input type="date" disabled><br><br>
+                  <button type="submit" disabled>Extend</button>
+                </fieldset>
+              </form>
+              <br>
+              <button type="button" onclick="deleteSchedule()">Delete Schedule</button>
+            </div>
+          </div>
 
-	  		<br>
+        </div>
 
-	  		<div>
-	  			<button id="toggleBtn" type="button">Toggle Availability</button>
-	  			<!-- <button id="busyBtn" type="button">Busy</button>
-	  			<button id="freeBtn" type="button">Free</button> -->
-	  		</div>
+        <div class="user-view" id="returnP-page">
+          <h3>Participant</h3>
+          <input id="p-secretcode" type="text" placeholder="Secret Code">
+          <button id="p-button" type="button" onclick="getMeeting()">Enter</button>
 
-	  		<br>
+          <div id="participant-view">
+            <!-- <h3>Participant View</h3> -->
+            <h4>Meeting:</h4>
+            <p>Hi <span id="participant-username"></span>!</p>
+            <p>You have a meeting on: <span id="meeting-timeslot"></span></p>
+            <button type="button" onclick="cancelPMeeting()">Cancel Meeting</button>
+          </div>
 
-	  		<div>
-	  			<button id="cancelBtn" type="button">Cancel Meeting</button>
-	  		</div>
+        </div>
 
-	  		<br>
+        <div>
+          <br><br><button type="button" onclick="refreshTable()">Refresh Schedule</button>
+        </div>
 
-	  		<div>
-	  			<button type="button" name="deleteSchedule" onclick="deleteSchedule()">Delete Schedule</button>
-	  		</div>
+      </div>
+    </div>
+  </div>
 
-	  	</div>
+  <!-- Sys Admin -->
+  <div id="sysadminMode">
+    <div class="container">
+      <!-- Login -->
+      <div class="container-inside">
+        <div>
+      		<h2>Sys Admin</h2>
+      	</div>
 
-	  	<div id="participantView">
-	  		<!-- Participant View when Participant enters correct secret code -->
-	  		<div>
-	  			<!--
-	  				Need to have a meeting selected
-	  			-->
-	  			<button type="button">Cancel Meeting</button>
-	  		</div>
+      	<div>
+  				Secret Code: <input type="text" name="secretCode" required disabled>
+  				<button type="button" onclick="" disabled>Login</button>
+      	</div>
+      </div>
 
-	  	</div>
-	  </div>
+      <!-- Access -->
+      <div class="container-inside">
+        <div id="deleteForm">
+          <h2>Delete Schedules</h2>
+    			<form name="deleteSchedulesForm">
+						Days Old: <input type="number" name="daysOldSchedule" disabled>
+						<button type="submit" disabled>Delete Schedules</button>
+    			</form>
+    		</div>
+      </div>
+      <div class="container-inside">
+        <div id="reportForm">
+          <h2>Report Activity</h2>
+    			<form name="reportActivityForm">
+  					Hours: <input type="number" name="hoursCreatedSchedule" disabled>
+  					<button type="submit" disabled>Get Schedule List</button>
+    			</form>
+    		</div>
 
-		</div>
+        <div id="scheduleList">
+          <!--
+          Create a table with X schedules created in past N hours
+          -->
+        </div>
+
+      </div>
+    </div>
+  </div>
+
 
 </body>
 </html>

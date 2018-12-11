@@ -1,35 +1,55 @@
-var post_url = "https://wxasuozkgb.execute-api.us-east-2.amazonaws.com/dev/schedule/"
-var userType = ""; // organizer, participant, init
+var url = "https://wxasuozkgb.execute-api.us-east-2.amazonaws.com/dev/schedule/";
+// var scheduleid = 20;
+// var secretcode = "nVOcXklPLV";
+var scheduleid;
+var meetTSID;
 var secretcode = "";
-var scheduleid = "";
+var usertype = ""; //organizer
+var maxRow; // gets the timeslots per day
 
 // schedule week tracking
 var week = 0;
-var firstMonday, lastDate, currWeek;
+var firstDate, lastDate, currWeek;
 
-// TODO:  check if ID actually exists in database - GET request
+function testFunction(){
+  console.log("Test");
+}
+
+// TODO:
+/*
+- Toggle Day should be implemented perhaps without clicking on the schedule, but through input based
+- Sys Admin Authentication
+- Sys Admin delete schedules
+- Sys admin report Activity
+- Find time slots
+- Extend Dates
+*/
+
+/*
+	View Functions
+*/
 
 function getView(){
   // Depending on URL, gets the type of view - Create Schedule or Review Schedule
-  console.log("getView()");
   var schedule_url = window.location.href;
   var n = schedule_url.indexOf(".html?");
   var createMode = document.getElementById("createMode");
   var reviewMode = document.getElementById("reviewMode");
-  if (n < 0) {
-    // create schedule view
+
+  if (n < 0) { // create schedule view
     reviewMode.style.display = "none";
     createMode.style.display = "block";
-  } else {
-    // get schedule ID
+  } else { // get schedule ID
     var index = n+6;
 		scheduleid = schedule_url.substring(index);
-    // check ID existence
-    if (scheduleid == "") {
+		var isnum = /^\d+$/.test(scheduleid);
+    if (scheduleid == "sysadmin"){
+			document.getElementById("sysadminMode").style.display = "block";
+			alert("In sys admin view!");
+		} else if (scheduleid == "" || !isnum) { // check ID existence
       alert("Can't view a schedule without a schedule ID!");
       window.location.href = "index.html";
-    } else {
-      // review schedule view
+    } else if (isnum) { // review schedule view
       createMode.style.display = "none";
       reviewMode.style.display = "block";
       getSchedule();
@@ -38,22 +58,19 @@ function getView(){
 }
 
 /*
-
-Create Schedule JavaScript Functions
-
+	Create Schedule Functions
 */
 
 function validateScheduleCreation() {
-  console.log("validateScheduleCreation()");
 	// this is so ugly - needs refactoring
 
 	// TODO better way to refactor obtaining all the elements in the Form?
 	var schedulename = document.getElementById("scheduleName").value;
 	var s_date = document.getElementById("startDate").value;
 	var e_date = document.getElementById("endDate").value;
-	var s_time = document.getElementById("startTime").value;
+	var s_time = parseInt(document.getElementById("startTime").value);
 	var s_time_type = document.getElementById("stType").value;
-	var e_time = document.getElementById("endTime").value;
+	var e_time = parseInt(document.getElementById("endTime").value);
 	var e_time_type = document.getElementById("etType").value;
 	var slotduration = document.getElementById("slotDuration").value;
 	var username = document.getElementById("userName").value;
@@ -78,6 +95,7 @@ function validateScheduleCreation() {
 	}
 
   if (e_time <= s_time) {
+    console.log(e_time, s_time);
 		alert("Start time cannot be greater than or equal to the end time!");
 		return false;
 	}
@@ -115,16 +133,16 @@ function validateScheduleCreation() {
 		}
 	}
 
+	console.log(object);
+
 	return createSchedule(object);
 
 }
 
 function createSchedule(obj) {
-  console.log("createSchedule()");
 	var request = new XMLHttpRequest();
-
 	request.responseType = "json";
-	request.open("POST", post_url, true);
+	request.open("POST", url, true);
 	request.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
 
 	request.onload = function(){
@@ -132,7 +150,7 @@ function createSchedule(obj) {
 			secretcode = this.response.secret_code;
 			scheduleid = this.response.schedule_id;
 			console.log(this.response);
-			alert("Calendar Successfully Created!\nSecret Code is: "+ secretcode);
+			alert("Schedule Successfully Created!\nSecret Code is: "+ secretcode);
 
       // doesn't refresh the page
       if (history.pushState){
@@ -141,18 +159,16 @@ function createSchedule(obj) {
       }
 
       // changes the view to review
-      userType = "organizer";
-      getView();
-      validateUser();
-      getSchedule();
-
+			toOrganizer();
+			getView();
       // adds secret code to text field
-      document.getElementById("secretCode").value = secretcode;
+      document.getElementById("o-secretcode").value = secretcode;
 		}else{
 			alert(this.response.message);
 			return false;
 		}
 	};
+
 
 	request.send(JSON.stringify(obj));
 
@@ -160,255 +176,56 @@ function createSchedule(obj) {
 }
 
 /*
-
-Review Schedule JavaScript Functions
-
+	Table Functions
 */
 
-function changeView(arg){
-  console.log("changeView()");
-  if (arg){
-    userType = "organizer";
-  } else {
-    userType = "participant";
-    // getMeeting(document.getElementById("secretCode"));
-  }
-  validateUser();
-}
-
-function tableFunction(){
-  console.log("tableFunction()");
-  // Table Script
-  var table = document.getElementById("calendar");
-  var rIndex, cIndex;
-
-  // table rows
-
-  for (var i = 0; i < table.rows.length; i++){
-    // collumns
-    for (var j = 0; j < table.rows[i].cells.length; j++){
-      table.rows[i].cells[j].onclick = function(){
-        rIndex = this.parentElement.rowIndex;
-        cIndex = this.cellIndex;
-        console.log(this.innerHTML);
-        console.log("Row: " + rIndex + ", Cell: " + cIndex);
-      };
-
-    }
-  }
-}
-
-function selectSlot(id){
-  console.log("selectSlot()");
-  console.log("free slot selected: "+id);
-  var username = document.forms["createMeetingForm"]["userName"].value;
-
-  // TODO: Allow Organizer to make slots busy or free by clicking on the slot
-  if (userType == "organizer"){
-    return;
-  }
-
-  if (username != ""){
-    alert("Meeting set for: "+username+" at timeslot id of: "+id);
-    createMeeting(username, id);
-  } else {
-    alert("Must have a user name to set a meeting!");
-  }
-  // TODO: send data to calendar
-}
-
-// TODO Janky Back end for now
-function createMeeting(username, id){
-  console.log("createMeeting()");
-  var request = new XMLHttpRequest();
-  var meeting_url = post_url + scheduleid + "/" + "timeslot/" + id;
-  console.log(meeting_url);
-
-	request.responseType = "json";
-	request.open("POST", meeting_url, true);
-	request.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-
-	request.onload = function(){
-    var data = JSON.parse(this.response);
-    console.log(data);
-	};
-
-  var jsonObj = {username: username, email: "a@a.com"};
-
-	request.send(JSON.stringify(jsonObj));
-
-	return false;
-}
-
-// TODO How to even implement this??
-function getMeeting(code){
-  console.log("getMeeting()");
-  var request = new XMLHttpRequest();
-  var meeting_url = post_url + scheduleid + "/" + "timeslot/";
-  request.open('GET', meeting_url, true);
-  request.setRequestHeader('Authorization', code);
-  request.onload = function () {
-		var data = JSON.parse(this.response);
-		console.log(data);
-
-    // Gets the start date and end date to figure out how to show other weeks
-
-    // TODO fix request to send 400 error if ID + authorization are incorrect
-		// if (request.status >= 200 && request.status < 400 && data.status != "fail") {
-    //
-    // } else {
-    //   alert("This meeting does not exist!");
-    // }
-
-	}
-
-	request.send();
-}
-
 function getSchedule(){
-  console.log("getSchedule()");
-  var request = new XMLHttpRequest();
-  request.open('GET', post_url+scheduleid, true);
-  request.onload = function () {
-		var data = JSON.parse(this.response);
-		console.log(data);
+	console.log("retrieving schedule...");
 
-    // Gets the start date and end date to figure out how to show other weeks
-    setScheduleWeekTracking(data.timeslots[0].start_date, data.end_date);
-
-    // TODO fix request to send 400 error if ID + authorization are incorrect
-		if (request.status >= 200 && request.status < 400 && data.status != "fail") {
-      var reviewView = document.getElementById("reviewView");
-      reviewView.style.display = "block";
-      var rScheduleName = document.getElementById("rScheduleName");
-      rScheduleName.innerHTML = data.name;
-      var showCal = document.getElementById("showCal");
-      showCal.style.display = "block";
-    } else {
-      alert("This schedule does not exist!");
-    }
-
-	}
-
-	request.send();
-}
-
-function setScheduleWeekTracking(start, end){
-  console.log("setScheduleWeekTracking()");
-  lastDate = new Date(end);
-
-  var a = new Date(start);
-  if (a.getDay() > 1){
-    a.setDate(a.getDate() - (a.getDay() - 1)); // 1 is Monday
-  }
-
-  firstMonday = currWeek = a;
-
-}
-
-function validateUser(){
-  console.log("validateUser()");
-  var secretcode = document.getElementById("secretCode").value;
-  var participant = document.getElementById("participantView");
-  var organizer = document.getElementById("organizerView");
-  var inituser = document.getElementById("initView");
-  if (userType == "participant") { // Edit Meeting
-    userType = "participant";
-    organizer.style.display = "none";
-    inituser.style.display = "block";
-    participant.style.display = "block";
-  } else if (userType == "organizer"){ // Edit Schedule
-    userType = "organizer";
-    participant.style.display = "none";
-    inituser.style.display = "none";
-    organizer.style.display = "block";
-  }
-
-  document.getElementById("viewChooser").style.display = "none";
-
-  return false;
-}
-
-function toggleCalendar(arg) {
-  console.log("toggleCalendar()");
-	var calDiv = document.getElementById("calendarView");
-	var weekBtn = document.getElementsByClassName("cal-btn");
-	var showDiv = document.getElementById("showCal");
-	var hideDiv = document.getElementById("hideCal");
-
-	if (arg){
-		if (document.getElementById("calendarBody").children.length <= 1) {
-			showTimeSlots();
-		}
-
-		for (i = 0; i < weekBtn.length; i++) {
-			weekBtn[i].style.display = 'block';
-		}
-		calDiv.style.display = "block";
-		showDiv.style.display = "none";
-		hideDiv.style.display = "block";
-	} else {
-		for (i = 0; i < weekBtn.length; i++) {
-			weekBtn[i].style.display = 'none';
-		}
-		calDiv.style.display = "none";
-		hideDiv.style.display = "none";
-		showDiv.style.display = "block";
-	}
-	return false;
-
-}
-
-function showTimeSlots() {
-  console.log("showTimeSlots()");
-
-  var weekRange = document.getElementById("weekRange");
-  weekRange.innerHTML = "<b>Week: </b>"+getWeekRange();
-	// Create new request
 	var request = new XMLHttpRequest();
+	var getWeekURL;
+	if (currWeek != null){
+		getWeekURL = url+scheduleid+'?week='+currWeek.toISOString();
+	} else {
+		getWeekURL = url+scheduleid; //+'?week='+currWeek.toISOString();
+	}
 
-	// Make GET request
-  var getWeekURL = post_url+scheduleid+'?week='+currWeek.toISOString();
-  // console.log(getURL);
-  // request.open('GET', 'https://sqc1z962y5.execute-api.us-east-2.amazonaws.com/dev/schedule/'+scheduleid, true);
   request.open('GET', getWeekURL, true);
 	request.onload = function () {
-		// Access JSON data
 		var data = JSON.parse(this.response);
 		console.log(data);
-
-    // get day of first time slot to determine where it gets placeholder
-    var startDay = (new Date(data.timeslots[0].start_date)).getDay(); // Mon = 1; Tue = 2; Wed = 3; Thur = 4; Fri = 5
-    var endDay = (new Date(data.timeslots[data.timeslots.length - 1].start_date)).getDay();
 
 		if (request.status >= 200 && request.status < 400) {
 
-			var calenderBody = document.getElementById("calendarBody");
+			// save organizer username
+			// document.getElementById("organizer-username").innerHTML = "Organizer";// data.organizername
+      document.getElementById("review-scheduleName").innerHTML = data.name;
 
-			// The first column will contain the date information
-			// Then for each of the days in the week (Mon-Fri), add the TimeSlot's availability to a new cell in the table
+			// get day of first time slot to determine where it gets placeholder
+			var startDay = (new Date(data.timeslots[0].start_date)).getDay(); // Mon = 1; Tue = 2; Wed = 3; Thur = 4; Fri = 5
+			var endDay = (new Date(data.timeslots[data.timeslots.length - 1].start_date)).getDay();
+
+			// Gets the start date and end date to figure out how to show other weeks
+			setScheduleWeekTracking(data.timeslots[0].start_date, data.end_date);
+
+			var calendarBody = document.getElementById("schedulerTableBody");
+
+      // Slot stuff
+      var totalSlot = 0;
+      var colSlot = 0;
+
+			// Time slots per day
+			var dayHours = data.end_time - data.start_time;
+			var timeSlotsInHour = data.duration/60;
+			maxRow = dayHours/timeSlotsInHour;
+
 			for (colNum = 0; colNum < 6; colNum++) {
-				// In the first column, add the time
-        // Calculate the maximum number of rows, based on the number of TimeSlots per day
-        var dayHours = data.end_time - data.start_time;
-        var timeSlotsInHour = data.duration/60;
-        var maxRow = dayHours/timeSlotsInHour; // time slots per day
-
-        // Keep track of the slots that have been used so far
-        var slot = 0;
-
-				if (colNum == 0) {
-
-					// For each row in the table, fill in the timeslot data
-					for (rowNum = 0; rowNum < maxRow; rowNum++) {
-						// Create a new empty row in the table
-						var row = calenderBody.insertRow(rowNum);
-
-						// Create a new cell <td> element at the current row and column
+				for (rowNum = 0; rowNum < maxRow; rowNum++) {
+					if (colNum == 0){
+						var row = calendarBody.insertRow(rowNum);
 						var cell = row.insertCell(colNum);
 
-						// Set the cell's contents
-						var slotTime = new Date(data.timeslots[slot].start_date);
+						var slotTime = new Date(data.timeslots[colSlot].start_date);
 
 						if (slotTime.getMinutes() == 0) {
 							cell.innerHTML = slotTime.getHours() +":"+ slotTime.getMinutes() +"0";
@@ -416,13 +233,8 @@ function showTimeSlots() {
 							cell.innerHTML = slotTime.getHours() +":"+ slotTime.getMinutes();
 						}
 
-						// Increment the current slot counter
-						slot++;
-					}
-				} else {
-					// For each row in the table, add the TimeSlots for the current column
-					for (rowNum = 0; rowNum < maxRow; rowNum++) {
-						// Create a new cell <td> element at the current row and column
+						colSlot++;
+					} else {
 						var cell = calendarBody.rows[rowNum].insertCell(colNum);
 
             // creates cells but they are empty if they do not exist
@@ -434,40 +246,448 @@ function showTimeSlots() {
               continue;
             }
 
-						// Set the cell's contents
-            // TODO: Find a way to not show the innerHTML tag, but have it available to collect when selecting the cell
-						// cell.innerHTML = data.timeslots[slot].id;
 
-						// If the TimeSlot is available, show this. Otherwise, show "Unavailable"
-						if (data.timeslots[slot].available) {
-							cell.className = "availableSlot";
-              var slotId = data.timeslots[slot].id;
-              cell.innerHTML = "<input type='button' value='free' width='100%' class='slot-btn' id='"+slotId+"' onClick='selectSlot(this.id)'>";
-						} else {
-							cell.className = "unavailableSlot";
-						}
+						if (usertype == "organizer" && data.timeslots[totalSlot].meeting != null){
+							cell.className = "meetingSlot";
+							cell.innerHTML = data.timeslots[totalSlot].meeting.username; // Change to username
+						} else if (cell.className == "meetingSlot" && data.timeslots[totalSlot].meeting == null){
+							cell.className = "openSlot";
+							cell.innerHTML = "";
+						} else if (data.timeslots[totalSlot].available){
+              cell.className = "openSlot";
+							cell.innerHTML = "";
+            } else {
+            	cell.className = "closedSlot";
+							cell.innerHTML = "";
+            }
 
-						// Increment the current slot counter
-						slot++;
+            cell.id = data.timeslots[totalSlot].id;
+
+						totalSlot++;
 					}
 				}
 			}
+			tableFunction();
 		} else {
-			// Error handling
+			alert("This schedule does not exist!");
+			window.location.href = "index.html";
 		}
-    tableFunction();
+
+	}
+
+	request.addEventListener("loadend", loadEnd);
+
+	request.send();
+}
+
+function refreshTable(){
+  console.log("refreshing...");
+  var request = new XMLHttpRequest();
+  var getWeekURL = url+scheduleid +'?week='+currWeek.toISOString();
+
+  request.open('GET', getWeekURL, true);
+	request.onload = function () {
+		var data = JSON.parse(this.response);
+		console.log(data);
+
+		if (request.status >= 200 && request.status < 400) {
+			var slot = 0;
+
+	    // traverse all of table and match IDs
+	    var calendarTable = document.getElementById("schedulerTable");
+	    for (var j = 0; j < 6; j++){
+	      for (var i = 0; i <= maxRow; i++){
+
+					if (slot == data.timeslots.length){
+						break;
+					}
+
+	        var cell = calendarTable.rows[i].cells[j];
+	        if (cell.id != null && data.timeslots != null && cell.id == data.timeslots[slot].id) {
+	          // Chance slot class depending on timeslot availability and type of user viewing schedule
+						if (usertype == "organizer" && data.timeslots[slot].meeting != null) {
+							cell.className = "meetingSlot";
+							cell.innerHTML = data.timeslots[slot].meeting.username; // Change to username
+						} else if (cell.className == "meetingSlot" && data.timeslots[slot].meeting == null){
+							cell.className = "openSlot";
+							cell.innerHTML = "";
+							console.log("Meeting Canceled!")
+						} else if (cell.className == "closedSlot" && data.timeslots[slot].available) {
+	            cell.className = "openSlot";
+							cell.innerHTML = "";
+							console.log("Opened slot!");
+	          } else if (cell.className == "openSlot" && !data.timeslots[slot].available){
+	            cell.className = "closedSlot";
+							cell.innerHTML = "";
+							console.log("Closed slot!");
+	          }
+
+						slot++;
+	        }
+
+	      }
+	    }
+		}
+
 	}
 
 	request.send();
 }
 
+function rebuildSchedule(){
+	// traverse through table and remove all id's and classes (if they have id's)
+
+	console.log("rebuilding...");
+  var request = new XMLHttpRequest();
+  var getWeekURL = url+scheduleid +'?week='+currWeek.toISOString();
+
+  request.open('GET', getWeekURL, true);
+	request.onload = function () {
+		var data = JSON.parse(this.response);
+		console.log(data);
+
+		if (request.status >= 200 && request.status < 400) {
+			// get day of first time slot to determine where it gets placeholder
+	    var startDay = (new Date(data.timeslots[0].start_date)).getDay(); // Mon = 1; Tue = 2; Wed = 3; Thur = 4; Fri = 5
+	    var endDay = (new Date(data.timeslots[data.timeslots.length - 1].start_date)).getDay();
+
+			// traverse all of table and match IDs
+	    var calendarTable = document.getElementById("schedulerTable");
+
+      // Slot stuff
+      var totalSlot = 0;
+
+			for (var j = 0; j < 6; j++){
+	      for (var i = 1; i <= maxRow; i++){
+					if (j == 0){
+						continue;
+					} else {
+						// var cell = calendarBody.rows[rowNum].insertCell(colNum);
+						var cell = calendarTable.rows[i].cells[j];
+						if (cell.id != null || cell.id != ""){
+							//empty contents
+							cell.id = "";
+							cell.className = "";
+							cell.innerHTML = "";
+						}
+
+            // empty if days do not exist on schedule
+            if (j < startDay) {
+              continue;
+            }
+
+            if (j > endDay) {
+              continue;
+            }
+
+						if (usertype == "organizer" && data.timeslots[totalSlot].meeting != null){
+							cell.className = "meetingSlot";
+							cell.innerHTML = data.timeslots[totalSlot].meeting.username; // Change to username
+						} else if (cell.className == "meetingSlot" && data.timeslots[totalSlot].meeting == null){
+							cell.className = "openSlot";
+							cell.innerHTML = "";
+						} else if (data.timeslots[totalSlot].available){
+              cell.className = "openSlot";
+							cell.innerHTML = "";
+            } else {
+            	cell.className = "closedSlot";
+							cell.innerHTML = "";
+            }
+
+            cell.id = data.timeslots[totalSlot].id;
+
+						totalSlot++;
+					}
+				}
+			}
+			tableFunction();
+		} else {
+			alert("Error!");
+		}
+
+	}
+
+	request.addEventListener("loadend", loadEnd);
+
+	request.send();
+}
+
+function loadEnd(e) {
+	var weekRange = document.getElementById("weekRange");
+	weekRange.innerHTML = getWeekRange();
+}
+
+function meetingLoadEnd(e) {
+  alert("Meeting Cancelled!");
+  if (usertype == ""){
+    window.location.reload();
+  }
+}
+
+function tableFunction(){
+  var calendarTable = document.getElementById("schedulerTable");
+  var rIndex, cIndex;
+
+	for (var j = 0; j < 6; j++){
+		for (var i = 0; i <= maxRow; i++){
+      calendarTable.rows[i].cells[j].onclick = function(){
+				if (this.id != ""){
+					selectSlot(this, this.id);
+				} else {
+					if (usertype == "organizer"){
+						var time = this.innerText;
+						toggleTime(timeToDate(time));
+					}
+				}
+      };
+
+    }
+  }
+}
+
+function selectSlot(cell, id){
+  console.log("Slot selected: "+id);
+	if (usertype == "organizer"){
+		// Organizer
+		if (id.length == 5 && id.substring(0, 4) == "head"){
+			var num = parseInt(id.substring(4));
+			if (num >= 0 && num <= 4) {
+				var toggle_date = new Date();
+				toggle_date.setFullYear(currWeek.getFullYear());
+				toggle_date.setMonth(currWeek.getMonth());
+				toggle_date.setDate(currWeek.getDate() + num);
+				console.log("Date to toggle is", getWeekString(toggle_date));
+
+				// if () {
+				// 	toggleDay(toggle_date, false);
+				// } else if (){
+				// 	toggleDay(toggle_date, true);
+				// }
+				// toggleDay();
+			}
+		} else if (cell.className == "meetingSlot"){
+			if (confirm("Are you sure you want to cancel meeting?")){
+				cancelMeeting(id);
+				// cell.className = "openSlot";
+			}
+		} else if (cell.className == "openSlot"){
+			console.log("O closing slot...");
+			// cell.className = "closedSlot";
+			toggleSlot(false, id);
+		} else if (cell.className == "closedSlot"){
+			console.log("O opening slot...");
+			// cell.className = "openSlot";
+			toggleSlot(true, id);
+		}
+
+	} else {
+		// Participant
+		var username = document.getElementById("username").value;
+	  var email = document.getElementById("useremail").value;
+		console.log(username, email);
+
+		if (username != "" && email != "") {
+			if (cell.className == "openSlot"){
+				createMeeting(username, email, id);
+			} else {
+        alert("Can't make meetings on a closed slot!");
+      }
+		} else {
+			alert("Please enter username and email to create a meeting");
+		}
+
+	}
+
+}
+
+/*
+	Meeting Functions
+*/
+
+function createMeeting(username, email, id){
+  var request = new XMLHttpRequest();
+  var meeting_url = url + scheduleid + "/" + "timeslot/" + id;
+
+	request.responseType = "json";
+	request.open("POST", meeting_url, true);
+	request.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+
+	request.onload = function(){
+    var data = this.response;
+    console.log(data);
+		if (request.status >= 200 && request.status < 400) {
+			refreshTable();
+			document.getElementById("p-secretcode").value = data.secret_code;
+			getMeeting();
+		}
+	};
+
+  var jsonObj = {username: username, email: email};
+
+	request.send(JSON.stringify(jsonObj));
+}
+
+function getMeeting(){
+	var pview = document.getElementById("participant-view");
+	var psecretcode = document.getElementById("p-secretcode");
+	var pusername = document.getElementById("participant-username");
+	var pmeetingslot = document.getElementById("meeting-timeslot");
+
+	console.log("getting meeting...");
+  var request = new XMLHttpRequest();
+  var meeting_url = url+scheduleid+"/meeting/"+psecretcode.value;
+	console.log(meeting_url);
+
+  request.open('GET', meeting_url, true);
+	request.onload = function () {
+		var data = JSON.parse(this.response);
+		console.log(data);
+
+		if (request.status >= 200 && request.status < 400) {
+      secretcode = psecretcode.value;
+      toParticipant();
+			pview.style.display = "block";
+			pusername.innerHTML = data.username;
+      meetTSID = data.timeslot_id;
+			pmeetingslot.innerHTML = getMeetingString(new Date(data.start_date), data.duration);
+		} else {
+			alert("Incorrect Secret Code or \nMeeting no longer exists");
+		}
+
+
+	}
+
+	request.send();
+
+}
+
+function cancelPMeeting(){
+  console.log("CancelPMeeting", meetTSID);
+  cancelMeeting(meetTSID);
+}
+
+function cancelMeeting(id){
+	var request = new XMLHttpRequest();
+  var meeting_url = url + scheduleid + "/" + "timeslot/" + id;
+
+	request.responseType = "json";
+	request.open("DELETE", meeting_url, true);
+	request.setRequestHeader('Authorization', secretcode);
+	request.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+
+	request.onload = function(){
+    var data = this.response;
+    console.log(data);
+    if (request.status >= 200 && request.status < 400) {
+      refreshTable();
+    } else {
+      alert("Meeting does not exist!");
+    }
+	};
+
+  request.addEventListener("loadend", meetingLoadEnd);
+
+	request.send();
+}
+
+function getMeetingString(date, duration){
+	var meetingdate = new Date(date);
+	console.log(meetingdate);
+	var first = meetingdate.toString().substring(0, 15);
+	var second = meetingdate.toString().substring(16, 21);
+	return " "+first+" at " + second + " for " + duration + " minutes";
+}
+
+/*
+	Toggle Functions
+*/
+
+function toggleSlot(open, id){
+	var request = new XMLHttpRequest();
+	var toggle_url = url + scheduleid + "/" + "timeslot/" + id + "/";
+	if (open){
+		toggle_url = toggle_url + "open";
+	} else {
+		toggle_url = toggle_url + "close";
+	}
+
+	request.responseType = "json";
+	request.open("POST", toggle_url, true);
+  request.setRequestHeader('Authorization', secretcode);
+	request.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+
+	request.onload = function(){
+    var data = this.response;
+    console.log(data);
+    refreshTable();
+	};
+
+	request.send();
+}
+
+function toggleDay(date, open){
+	var request = new XMLHttpRequest();
+	var toggle_url = url + scheduleid + "/" + "timeslot/";
+	console.log("date at", date.toISOString())
+	if (open){
+		toggle_url = toggle_url + "open?day=" + date.toISOString();
+	} else {
+		toggle_url = toggle_url + "close?day=" + date.toISOString();
+	}
+
+	console.log("toggle day url: ", toggle_url);
+
+	request.responseType = "json";
+	request.open("POST", toggle_url, true);
+  request.setRequestHeader('Authorization', secretcode);
+	request.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+
+	request.onload = function(){
+    var data = this.response;
+    console.log(data);
+    refreshTable();
+	};
+
+	request.send();
+}
+
+function toggleTime(time){
+	console.log(time);
+}
+
+function timeToDate(argTime){
+	// converts a string HH:MM to a date object
+	var timeslot = new Date();
+	var hour = argTime.substring(0, argTime.indexOf(":"));
+	var minute = argTime.substring(argTime.indexOf(":")+1);
+	timeslot.setHours(hour);
+	timeslot.setMinutes(minute);
+	return timeslot;
+}
+
+/*
+	Week Functions
+*/
+
+function setScheduleWeekTracking(start, end){
+  lastDate = new Date(end);
+  firstDate = new Date(start);
+
+  var a = new Date(start);
+  if (a.getDay() > 1){
+    a.setDate(a.getDate() - (a.getDay() - 1)); // 1 is Monday
+  }
+
+  currWeek = a;
+
+}
+
 function previousWeek() {
-  console.log("previousWeek()");
   // TODO: implement previous week
   if (week > 0) {
     currWeek = getPreviousWeek(currWeek);
     week--;
-    reloadCalendar();
+    rebuildSchedule();
   } else {
     alert("Can't go before start date!");
   }
@@ -475,7 +695,6 @@ function previousWeek() {
 }
 
 function nextWeek() {
-  console.log("nextWeek()");
   // TODO: implement next week
   // TODO: check if end date is in next week (get correct 'end' date)
   var previousWeek = currWeek;
@@ -485,21 +704,11 @@ function nextWeek() {
     return;
   }
   week++;
-  reloadCalendar();
+  rebuildSchedule();
   // week cannot increase if end date is in current week
 }
 
-function reloadCalendar(){
-  console.log("reloadCalendar()");
-  var new_body = document.createElement("tbody");
-  new_body.id = "calendarBody";
-  var old_body = document.getElementById("calendarBody");
-  old_body.parentNode.replaceChild(new_body, old_body);
-  showTimeSlots();
-}
-
 function getNextWeek(date){
-  console.log("getNextWeek()");
   var resultDate = new Date(date.getTime());
   resultDate.setDate(date.getDate() + 7);
   if (onLastWeek(date)){
@@ -510,12 +719,10 @@ function getNextWeek(date){
 }
 
 function onLastWeek(date){
-  console.log("onLastWeek()");
   // get lastDate and current week and compares
   for (var num = 0; num < 5; num++){
     var newDate = new Date(date.getTime());
     newDate.setDate(date.getDate() + num);
-    console.log("N: "+newDate+"\nL: "+lastDate);
     if (isSameDate(newDate, lastDate)){
       return true;
     }
@@ -524,7 +731,6 @@ function onLastWeek(date){
 }
 
 function isSameDate(date1, date2){
-  console.log("isSameDate()");
   // checks if both dates (month day year) are the same
   if (date1.getMonth() == date2.getMonth()
   && date1.getFullYear() == date2.getFullYear()
@@ -535,34 +741,78 @@ function isSameDate(date1, date2){
 }
 
 function getPreviousWeek(date){
-  console.log("getPreviousWeek()");
   var resultDate = new Date(date.getTime());
   resultDate.setDate(date.getDate() - 7);
   return resultDate;
 }
 
 function getWeekRange(){
-  console.log("getWeekRange()");
   // Example return " March 3, 2018 - March 9, 2018"
-  var lastDayOfWeek;
-  lastDayOfWeek = new Date(currWeek.getTime());
-  lastDayOfWeek.setDate(currWeek.getDate() + 4);
-  return getWeekString(currWeek)+" - "+getWeekString(lastDayOfWeek);
+	if (currWeek != null){
+		var lastDayOfWeek;
+		lastDayOfWeek = new Date(currWeek.getTime());
+		lastDayOfWeek.setDate(currWeek.getDate() + 4);
+		return getWeekString(currWeek)+" - "+getWeekString(lastDayOfWeek);
+	} else {
+		return "";
+	}
+
 }
 
 function getWeekString(date){
-  console.log("getWeekString()");
   // sketch soltion lol
   return date.toString().substring(4, 15);
 }
 
+/*
+	Organizer Functions
+*/
+
+function authenticateOrganizer(){
+  var osecretcode = document.getElementById("o-secretcode");
+  console.log("Authenticating Organizer...");
+  var request = new XMLHttpRequest();
+  var auth_url = url+scheduleid+"/authenticate";
+	console.log(auth_url);
+  request.open('GET', auth_url, true);
+	request.setRequestHeader('Authorization', osecretcode.value);
+	request.onload = function () {
+		var data = JSON.parse(this.response);
+		console.log(data);
+
+		if (request.status >= 200 && request.status < 400) {
+      toOrganizer();
+		} else {
+			alert("Incorrect Secret Code!");
+		}
+
+
+	}
+
+	request.send();
+}
+
+
+function toOrganizer(){
+	usertype = "organizer";
+	if (document.getElementById("reviewMode").style.display == "block"){
+		secretcode = document.getElementById("o-secretcode").value;
+		refreshTable();
+	}
+	// document.getElementById("o-secretcode").disabled = true;
+  document.getElementById("meeting-legend").style.display = "block";
+	document.getElementById("o-button").style.display = "none";
+	document.getElementById("newP-page").style.display = "none";
+	document.getElementById("returnP-page").style.display = "none";
+	document.getElementById("organizer-view").style.display = "block";
+}
+
 function deleteSchedule() {
-  console.log("deleteSchedule()");
 	var answer = confirm("Are you sure you want to delete this schedule?");
 	if (answer) {
 		// schedule is deleted and returns back to home page
     var request = new XMLHttpRequest();
-    request.open('DELETE', post_url+scheduleid, true);
+    request.open('DELETE', url+scheduleid, true);
   	request.setRequestHeader('Authorization', secretcode);
     request.onload = function () {
   		var data = JSON.parse(this.response);
@@ -577,18 +827,16 @@ function deleteSchedule() {
   	}
 
   	request.send();
-		return false;
 	} else {
 		// nothing
-		return true;
 	}
 }
 
-// function putTimeslotsIntoTable() {}
+/*
+	Search Time Slots
+*/
 
-// returns: void -- removes options from a selection in html
-function removeOptions(selectbox)
-{
+function removeOptions(selectbox){
     var i;
     for(i = selectbox.options.length - 1 ; i >= 0 ; i--)
     {
@@ -596,14 +844,11 @@ function removeOptions(selectbox)
     }
 }
 
-// built for case: user searches for available timeslots
-// returns: void -- gets available slots and puts them into a viewable list
 function getAvailableTimeslots() {
-
+	document.getElementById("searchList").style.display = "block";
   // getAvailableTimeslots(year, month, weekday, day, hour)
   // get timeslots THIS IS WHERE I NEED YOU NATHAN!
 
-  // I'm using this VVV until i can get real info from you!
   let dummyTimeSlotStrings = ["slot 1", "slot 2", "slot 3", "slot 2","slot 2","slot 2","slot 2"];
 
   // put them into the table
@@ -621,68 +866,17 @@ function getAvailableTimeslots() {
     x.add(option);
   }
 
-  // celebrate
-
   // return array of timeslots
 }
 
 /*
-  TODO Functions
+	Participant Functions
 */
 
-/*
-  function toggleTimeSlot() {
-    // Called from "select slot" with userType = "organizer"
-    // If slot is selected, and timeslot is "free", then it closes it
-    // If slot is selected, and timeslot is "closed", then it opens it
-    // If cell is header (monday, tuesday, wednesday, thursday, friday)
-    // it should open/close the whole column
-    // If cell is timeslot, it open/close the whole row
-  }
-
-  function createMeeting(){
-    // If a participant selects any slot that is available, they are provided a secret code
-    // participant can either select a slot on the schedule or submit a slot on the select options table (must return timeslot ID value)
-  }
-
-  function getMeeting(){
-    // If participant enters correct code, they retrieve their username and the timeslot in a string
-    // "Hi <username>"
-    // "You have an appointment on: Feb 14, 2019 at 8:15 P.M."
-    // They are given the chance to cancel a meeting
-
-    // If incorrect code then:
-    // "Your code is incorrect or your meeting was cancelled by the organizer"
-  }
-
-
-  function cancelMeetingP(){
-    // With correct code, participant can cancel the meeting they have set
-  }
-
-  function cancelMeetingO(){
-  // with correct code, organizer can click on a slot with meeting and cancel it
-  // slot becomes open? or closed?
+function toParticipant(){
+	// document.getElementById("p-secretcode").disabled = true;
+	document.getElementById("p-button").style.display = "none";
+	document.getElementById("newP-page").style.display = "none";
+	document.getElementById("returnP-page").style.display = "block";
+	document.getElementById("organizer-page").style.display = "none";
 }
-
-  function extendDates(){
-    // Given start and end dates that are "extended" from schedule start and end dates, extend the dates on the schedule
-    // and refresh
-  }
-
-  function searchForTimeSlots(){
-    // Given a set of requirements, gets a list of avaialble time slots and displays them
-  }
-
-*/
-
-/*
-  TODO implementations
-*/
-
-/*
-  - In Organizer view, the "closed" time slots are differently colored than the "meeting" timeslots
-    - "meeting" timeslots display the user name inside
-  - In Participant view, both "closed" and "meeting" timeslots look the same with no information provided (grey)
-  - Authenticate returning participant and organizer using secret code
-*/
