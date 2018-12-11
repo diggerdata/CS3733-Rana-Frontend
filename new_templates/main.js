@@ -17,9 +17,12 @@ function testFunction(){
 
 // TODO:
 /*
-	1. ToggleDay - Accessed through selectSlot(cell, id)
-		-> need to figure out when to decide to toggle open or close
-	2. Merge create schedule with this
+- Toggle Day should be implemented perhaps without clicking on the schedule, but through input based
+- Sys Admin Authentication
+- Sys Admin delete schedules
+- Sys admin report Activity
+- Find time slots
+- Extend Dates
 */
 
 /*
@@ -194,7 +197,7 @@ function getSchedule(){
 		if (request.status >= 200 && request.status < 400) {
 
 			// save organizer username
-			document.getElementById("organizer-username").innerHTML = "Organizer";// data.organizername
+			// document.getElementById("organizer-username").innerHTML = "Organizer";// data.organizername
       document.getElementById("review-scheduleName").innerHTML = data.name;
 
 			// get day of first time slot to determine where it gets placeholder
@@ -415,7 +418,9 @@ function loadEnd(e) {
 
 function meetingLoadEnd(e) {
   alert("Meeting Cancelled!");
-  window.location.reload();
+  if (usertype == ""){
+    window.location.reload();
+  }
 }
 
 function tableFunction(){
@@ -483,7 +488,9 @@ function selectSlot(cell, id){
 		if (username != "" && email != "") {
 			if (cell.className == "openSlot"){
 				createMeeting(username, email, id);
-			}
+			} else {
+        alert("Can't make meetings on a closed slot!");
+      }
 		} else {
 			alert("Please enter username and email to create a meeting");
 		}
