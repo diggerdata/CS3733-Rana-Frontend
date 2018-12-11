@@ -8,36 +8,38 @@ This is an example link that **will not work** where "scheduleID" is a number th
 http://rana-scheduler.s3-website.us-east-2.amazonaws.com/?scheduleID
 
 ### Create Schedule
-In the create schedule view, an Organizer must enter to proceed.
+In the create schedule view, an Organizer must enter the following information to proceed:
 1. A schedule name
 2. A start and end date
 3. A start and end time
 4. A timeslot duration
 5. A username and email
 
-After successfully creating a schedule, the link is changed. As shown in the example above, it appends a scheduleID to the end of the main link. It automatically enters the organizers view.
+After successfully creating a schedule, the link is changed to reflect the unique ID of the newly created schedule. As shown in the example above, it appends a scheduleID to the end of the main link. The Organizer's view is then entered.
 
 ### Review Schedule
 By sharing the link provided after creating a schedule (*see example link above*), anyone with the link can enter and view the schedule.
 
-On the left, the viewer will see the organizers schedule. On the top of the schedule is the week of the schedule. If available, a user can move through different weeks using the *left* (<) and *right* (>) buttons. To understand the schedule, green slots are open slots, and grey slots are closed slots.
+On the left, the viewer will see the schedule. On the top of the schedule is the week of the schedule being viewed. If the schedule is longer than one week, a viewer can move through different weeks using the *left* (<) and *right* (>) buttons. The schedule contains timeslots ranging from 10 minutes to 60 minutes, each with a status indicated by a different color: 
+ - Green slots are open slots, where Participants can schedule meetings
+ - Grey slots are closed slots, which are not open for meetings
 
-On the right, the viewer will see multiple user options. A user initially enters as a participant.
+On the right, the viewer will see multiple user options, including options to sign in as a Participant or Organizer. A user initially enters as a Participant.
 
 Instead of refreshing the page, a user can click the *refresh schedule* button to refresh the schedule.
 
 #### Participant
-A participant can only make a meeting in an opened slot and must enter their user details. After selecting a slot on the schedule with their mouse, and successfully creating a meeting, they will be provided a secret code to access their meeting and cancel it if need be.
+A Participant can create a meeting in any open slot. To do so, they must enter their user details, which includes a username and email to identify them. After selecting a slot on the schedule with their mouse, and successfully creating a meeting, they will be provided a secret code to access their meeting and cancel it if need be.
 
 A returning participant can view their meeting and cancel it if they enter their secret code in the input text provided.
 
 #### Organizer
-An organizer can enter the organizer view by using his secret code. Unlike a participants view, an organizer can see open slots (green), closed slots (grey) and meeting slots (yellow) with the users names.
+An Organizer can enter the Organizer view by using their secret code. The Organizer view contains an additional yellow slot color, indicating a slot that a Participant has scheduled a meeting in. It also contains the user's name. These slots will be colored grey in the Participant view, as it is not important for Participants to know who has scheduled meetings when.
 
-By clicking on an open slot or closed slot, the organizer can toggle his availability at that timeslot. By clicking on a meeting, the organizer is prompted to cancel the meeting. If yes, the meeting will be deleted and the schedule will be updated.
+By clicking on an open slot or closed slot, the organizer can toggle their availability at that time. By clicking on a meeting, the organizer is prompted to cancel the meeting. After getting confirmation that the Organizer wants to cancel the meeting, the meeting will be deleted and the schedule will be updated to reflect the change.
 
 ### SysAdmin Page
-Once entering the [SysAdmin](http://rana-scheduler.s3-website.us-east-2.amazonaws.com/?sysadmin) page, the user will be prompted to enter the secret code in order to access administrative details.
+Once entering the [SysAdmin](http://rana-scheduler.s3-website.us-east-2.amazonaws.com/?sysadmin) page, the user will be prompted to enter the secret code in order to access administrative details. The SysAdmin has the ability to review schedules created within a requested number of hours, or delete schedules older than an a requested date.
 
 ### Disabled options
 All the disabled options are parts that have not been implemented yet and that are not required for the deliverable on the 12/10/2018 deadline.
