@@ -68,9 +68,9 @@ function validateScheduleCreation() {
 	var schedulename = document.getElementById("scheduleName").value;
 	var s_date = document.getElementById("startDate").value;
 	var e_date = document.getElementById("endDate").value;
-	var s_time = document.getElementById("startTime").value;
+	var s_time = parseInt(document.getElementById("startTime").value);
 	var s_time_type = document.getElementById("stType").value;
-	var e_time = document.getElementById("endTime").value;
+	var e_time = parseInt(document.getElementById("endTime").value);
 	var e_time_type = document.getElementById("etType").value;
 	var slotduration = document.getElementById("slotDuration").value;
 	var username = document.getElementById("userName").value;
@@ -95,6 +95,7 @@ function validateScheduleCreation() {
 	}
 
   if (e_time <= s_time) {
+    console.log(e_time, s_time);
 		alert("Start time cannot be greater than or equal to the end time!");
 		return false;
 	}
