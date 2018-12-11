@@ -43,17 +43,17 @@ function getView(){
     var index = n+6;
 		scheduleid = schedule_url.substring(index);
 		var isnum = /^\d+$/.test(scheduleid);
-    if (scheduleid == "" && !isnum) { // check ID existence
+    if (scheduleid == "sysadmin"){
+			document.getElementById("sysadminMode").style.display = "block";
+			alert("In sys admin view!");
+		} else if (scheduleid == "" || !isnum) { // check ID existence
       alert("Can't view a schedule without a schedule ID!");
       window.location.href = "index.html";
     } else if (isnum) { // review schedule view
       createMode.style.display = "none";
       reviewMode.style.display = "block";
       getSchedule();
-    } else if (scheduleid == "sysadmin"){
-			document.getElementById("sysadminMode").style.display = "block";
-			alert("In sys admin view!");
-		}
+    }
   }
 }
 
