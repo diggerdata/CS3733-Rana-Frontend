@@ -1,131 +1,13 @@
 <!DOCTYPE html>
 <html>
-<style>
-  .openSlot {
-    background-color: lightgreen;
-  }
-
-  .closedSlot {
-    background-color: grey;
-  }
-
-  .meetingSlot {
-    background-color: lightyellow;
-    text-align: center;
-  }
-
-  table {
-    border-spacing: 0;
-    border-collapse: collapse;
-  }
-
-  table, th, td {
-    border: 1px solid black;
-    cursor: context-menu;
-  }
-
-  .container-create {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-evenly;
-    align-items: center;
-  }
-
-  .container-create-row {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: flex-start;
-  }
-
-  .container-create-column {
-    margin:30px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-evenly;
-    align-items: center;
-  }
-
-  .container {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-evenly;
-    align-items: flex-start;
-  }
-
-  .container-inside {
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-  }
-
-  .websiteTitle {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
-  }
-
-  .websiteTitle img {
-    width: 5%;
-  }
-
-  .schedule-button-container {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-  }
-
-  .container-time {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-  }
-
-  .container-center {
-    display: flex;
-    align-self: center;
-  }
-
-  .container-small {
-    display: flex;
-    width: 25%;
-  }
-
-  /* basic positioning */
-  .legend-box {
-    list-style: none;
-  }
-
-  .legend-box li {
-    float: left;
-    margin-right: 10px;
-  }
-
-  .legend-box span {
-    border: 1px solid black;
-    float: left;
-    width: 12px;
-    height: 12px;
-    margin: 2px;
-  }
-
-  #organizer-view, #participant-view, #searchList, #createMode, #reviewMode, #sysadminMode, #meeting-legend{
-    display: none;
-  }
-
-  #weekRange {
-    align-content: center;
-  }
-
-</style>
 <head>
 	<title>Rana Scheduler</title>
-	<script src="main.js"></script>
+  <script src="main.js"></script>
+  <link rel="stylesheet" type="text/css" href="style.css">
 </head>
 
 <body onload="getView()">
-  <div class = "websiteTitle">
+  <div class = "websiteTitle foreground">
     <img src="rana_logo.png" alt="Rana Scheduler Logo">
     <h1>&nbsp; Rana Scheduler</h1>
   </div>
@@ -135,7 +17,7 @@
   <!-- Create Schedule -->
   <div id="createMode">
     <form id="createForm" name= "createScheduleForm" onsubmit="return validateScheduleCreation()">
-      <div class="container-create">
+      <div class="container-create foreground">
         Schedule Name: <br>
         <input type="text" name="scheduleName" id="scheduleName" placeholder="Schedule Name"required>
         <br><div class="container-create-row">
