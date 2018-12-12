@@ -7,6 +7,8 @@ var secretcode = "";
 var usertype = ""; //organizer
 var maxRow; // gets the timeslots per day
 
+var open = true; // determines if day or timeslot toggle is open or closed
+
 // schedule week tracking
 var week = 0;
 var firstDate, lastDate, currWeek;
@@ -475,7 +477,7 @@ function selectSlot(cell, id){
 				toggle_date.setMonth(currWeek.getMonth());
 				toggle_date.setDate(currWeek.getDate() + num);
 				console.log("Date to toggle is", getWeekString(toggle_date));
-
+        toggleDay(toggle_date);
 				// if () {
 				// 	toggleDay(toggle_date, false);
 				// } else if (){
@@ -643,7 +645,7 @@ function toggleSlot(open, id){
 	request.send();
 }
 
-function toggleDay(date, open){
+function toggleDay(date){
 	var request = new XMLHttpRequest();
 	var toggle_url = url + scheduleid + "/" + "timeslot/";
 	console.log("date at", date.toISOString())
@@ -681,6 +683,22 @@ function timeToDate(argTime){
 	timeslot.setHours(hour);
 	timeslot.setMinutes(minute);
 	return timeslot;
+}
+
+function slotOptions(arg){
+  var openButton = document.getElementById("openToggleButton");
+  var closeButton = document.getElementById("closeToggleButton");
+  if (arg){
+    open = true;
+    openButton.disabled = true;
+    closeButton.disabled = false;
+    console.log("open!");
+  } else {
+    open = false;
+    openButton.disabled = false;
+    closeButton.disabled = true;
+    console.log("closed!");
+  }
 }
 
 /*
