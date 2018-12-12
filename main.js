@@ -643,6 +643,8 @@ function toggleSlot(open, id){
 function toggleDay(date){
 	var request = new XMLHttpRequest();
 	var toggle_url = url + scheduleid + "/" + "timeslot/";
+  date.setHours(0);
+  date.setMinutes(0);
 	console.log("date at", date.toISOString())
 	if (open){
 		toggle_url = toggle_url + "open?day=" + date.toISOString();
@@ -727,6 +729,11 @@ function setScheduleWeekTracking(start, end){
   lastDate = new Date(end);
   firstDate = new Date(start);
 
+  // Add placeholders for extend Dates
+  // console.log(firstDate.toLocaleDateString());
+  document.getElementById("extendStartDate").value = formatDate(firstDate);
+  document.getElementById("extendEndDate").value = formatDate(lastDate);
+
   var a = new Date(start);
   if (a.getDay() > 1){
     a.setDate(a.getDate() - (a.getDay() - 1)); // 1 is Monday
@@ -734,6 +741,17 @@ function setScheduleWeekTracking(start, end){
 
   currWeek = a;
 
+}
+
+function formatDate(date) {
+    var month = '' + (date.getMonth() + 1),
+        day = '' + date.getDate(),
+        year = date.getFullYear();
+
+    if (month.length < 2) month = '0' + month;
+    if (day.length < 2) day = '0' + day;
+
+    return [year, month, day].join('-');
 }
 
 function previousWeek() {
