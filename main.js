@@ -456,6 +456,7 @@ function tableFunction(){
 				} else {
 					if (usertype == "organizer"){
 						var time = this.innerText;
+            console.log("time is", time);
 						toggleTime(timeToDate(time));
 					}
 				}
@@ -478,12 +479,6 @@ function selectSlot(cell, id){
 				toggle_date.setDate(currWeek.getDate() + num);
 				console.log("Date to toggle is", getWeekString(toggle_date));
         toggleDay(toggle_date);
-				// if () {
-				// 	toggleDay(toggle_date, false);
-				// } else if (){
-				// 	toggleDay(toggle_date, true);
-				// }
-				// toggleDay();
 			}
 		} else if (cell.className == "meetingSlot"){
 			if (confirm("Are you sure you want to cancel meeting?")){
@@ -672,7 +667,30 @@ function toggleDay(date){
 }
 
 function toggleTime(time){
-	console.log(time);
+  console.log(time);
+  var request = new XMLHttpRequest();
+	var toggle_url = url + scheduleid + "/" + "timeslot/";
+	console.log("date at", time.toISOString());
+	if (open){
+		toggle_url = toggle_url + "open?time=" + time.toISOString();
+	} else {
+		toggle_url = toggle_url + "close?time=" + time.toISOString();
+	}
+
+	console.log("toggle time url: ", toggle_url);
+
+	request.responseType = "json";
+	request.open("POST", toggle_url, true);
+  request.setRequestHeader('Authorization', secretcode);
+	request.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+
+	request.onload = function(){
+    var data = this.response;
+    console.log(data);
+    refreshTable();
+	};
+
+	request.send();
 }
 
 function timeToDate(argTime){
