@@ -1,5 +1,5 @@
 var url = "https://wxasuozkgb.execute-api.us-east-2.amazonaws.com/dev/schedule/";
-var sysurl = "https://wxasuozkgb.execute-api.us-east-2.amazonaws.com/dev/sysadmin/";
+var sysurl = "https://wxasuozkgb.execute-api.us-east-2.amazonaws.com/dev/sysadmin";
 // var scheduleid = 20;
 // var secretcode = "nVOcXklPLV";
 var scheduleid;
@@ -58,7 +58,6 @@ function getView(){
 		var isnum = /^\d+$/.test(scheduleid);
     if (scheduleid == "sysadmin"){
 			document.getElementById("sysadminMode").style.display = "block";
-			alert("In sys admin view!");
 		} else if (scheduleid == "" || !isnum) { // check ID existence
       alert("Can't view a schedule without a schedule ID!");
       window.location.href = "index.html";
@@ -1076,13 +1075,17 @@ function toParticipant(){
 
 /*
   Sys Admin Functions
+
+  DELETE: /sysadmin?days=
+  GET: /sysadmin?hours=
+
 */
 
 function authenticateSysAdmin(){
   var sysasecretcode = document.getElementById("sysa-secretcode");
   console.log("Authenticating SysAdmin...");
   var request = new XMLHttpRequest();
-  var sys_url = sysurl+"authenticate";
+  var sys_url = sysurl+"/authenticate";
 	console.log(sys_url);
   request.open('GET', sys_url, true);
 	request.setRequestHeader('Authorization', sysasecretcode.value);
@@ -1102,7 +1105,49 @@ function authenticateSysAdmin(){
 }
 
 function toSysAdmin(){
+  secretcode = document.getElementById("sysa-secretcode").value;
+  document.getElementById("sysa-secretcode").disabled = true;
+  document.getElementById("sysa-login").disabled = true;
+  document.getElementById("deleteForm").style.visibility = "visible";
+  document.getElementById("reportForm").style.visibility = "visible";
+}
 
+function deleteSchedules(){
+  var daysOld = document.getElementById("daysOldSchedule").value;
+  if (!daysOld.isInteger() || daysOld < 0) {
+    alert("Input must be a positive integer!");
+    return;
+  }
+
+}
+
+function reportActivity(){
+  var hours = parseFloat(document.getElementById("hoursCreatedSchedule").value);
+  if (!Number.isInteger(hours) || hours < 0) {
+    alert("Input must be a positive integer!");
+    return;
+  }
+
+
+  console.log("Report Activity...");
+  var request = new XMLHttpRequest();
+  var sys_url = sysurl+"?hours="+hours;
+	console.log(sys_url);
+  request.open('GET', sys_url, true);
+	request.setRequestHeader('Authorization', secretcode);
+	request.onload = function () {
+		var data = JSON.parse(this.response);
+		console.log(data);
+
+		// if (request.status >= 200 && request.status < 400) {
+    //   toSysAdmin();
+		// } else {
+		// 	alert("Incorrect Secret Code!");
+		// }
+
+	}
+
+	request.send();
 }
 
 /*
@@ -1119,8 +1164,4 @@ function fromISOToLocalFormat(dateISO) {
   var transform_date = new Date(dateISO);
   transform_date.setHours(transform_date.getHours()+hourOffset);
   return transform_date;
-}
-
-function compareDayDate(date1, date2){
-  return date1.getFullYear()
 }

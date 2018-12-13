@@ -110,10 +110,13 @@
     margin: 2px;
   }
 
-  #organizer-view, #participant-view, #searchList, #createMode, #reviewMode, #sysadminMode, #meeting-legend, #reportForm, #deleteForm{
+  #organizer-view, #participant-view, #searchList, #createMode, #reviewMode, #sysadminMode, #meeting-legend{
     display: none;
   }
 
+  #reportForm, #deleteForm {
+    visibility: hidden;
+  }
   #weekRange {
     align-content: center;
   }
@@ -358,7 +361,7 @@
 
       	<div>
   				Secret Code: <input type="text" name="secretCode" id="sysa-secretcode" required>
-  				<button type="button" onclick="testFunction()">Login</button>
+  				<button type="button" onclick="authenticateSysAdmin()" id="sysa-login">Login</button>
       	</div>
       </div>
 
@@ -366,19 +369,15 @@
       <div class="container-inside">
         <div id="deleteForm">
           <h2>Delete Schedules</h2>
-    			<form name="deleteSchedulesForm">
-						Days Old: <input type="number" name="daysOldSchedule" disabled>
-						<button type="submit" disabled>Delete Schedules</button>
-    			</form>
+					Days Old: <input type="number" name="daysOldSchedule" id="daysOldSchedule">
+					<button onclick="deleteSchedules()" type="button">Delete Schedules</button>
     		</div>
       </div>
       <div class="container-inside">
         <div id="reportForm">
           <h2>Report Activity</h2>
-    			<form name="reportActivityForm">
-  					Hours: <input type="number" name="hoursCreatedSchedule" disabled>
-  					<button type="submit" disabled>Get Schedule List</button>
-    			</form>
+					Hours: <input type="number" name="hoursCreatedSchedule" id="hoursCreatedSchedule">
+					<button onclick="reportActivity()" type="button">Get Schedule List</button>
     		</div>
 
         <div id="scheduleList">
