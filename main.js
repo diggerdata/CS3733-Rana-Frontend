@@ -6,6 +6,7 @@ var meetTSID;
 var secretcode = "";
 var usertype = ""; //organizer
 var maxRow; // gets the timeslots per day
+var dayHours; // gets the hours in a day
 
 var open = true; // determines if day or timeslot toggle is open or closed
 
@@ -234,7 +235,7 @@ function getSchedule(){
         starttime = data.start_time - timeoffset;
       }
 
-			var dayHours = endtime - starttime;
+			dayHours = endtime - starttime;
       console.log(dayHours);
 			var timeSlotsInHour = data.duration/60;
 			maxRow = dayHours/timeSlotsInHour;
@@ -643,6 +644,8 @@ function toggleSlot(open, id){
 function toggleDay(date){
 	var request = new XMLHttpRequest();
 	var toggle_url = url + scheduleid + "/" + "timeslot/";
+  date.setHours(0);
+  date.setMinutes(0);
 	console.log("date at", date.toISOString())
 	if (open){
 		toggle_url = toggle_url + "open?day=" + date.toISOString();
@@ -727,6 +730,11 @@ function setScheduleWeekTracking(start, end){
   lastDate = new Date(end);
   firstDate = new Date(start);
 
+  // Add placeholders for extend Dates
+  // console.log(firstDate.toLocaleDateString());
+  document.getElementById("extendStartDate").value = formatDate(firstDate);
+  document.getElementById("extendEndDate").value = formatDate(lastDate);
+
   var a = new Date(start);
   if (a.getDay() > 1){
     a.setDate(a.getDate() - (a.getDay() - 1)); // 1 is Monday
@@ -736,15 +744,34 @@ function setScheduleWeekTracking(start, end){
 
 }
 
+function formatDate(date) {
+    var month = '' + (date.getMonth() + 1),
+        day = '' + date.getDate(),
+        year = date.getFullYear();
+
+    if (month.length < 2) month = '0' + month;
+    if (day.length < 2) day = '0' + day;
+
+    return [year, month, day].join('-');
+}
+
 function previousWeek() {
   // TODO: implement previous week
-  if (week > 0) {
-    currWeek = getPreviousWeek(currWeek);
-    week--;
-    rebuildSchedule();
-  } else {
-    alert("Can't go before start date!");
+  var previousWeek = currWeek;
+  currWeek = getPreviousWeek(currWeek);
+  if (previousWeek == currWeek) {
+    console.log("Can't go to previous week!");
+    return;
   }
+  week--;
+  rebuildSchedule();
+  // if (week > 0) {
+  //   currWeek = getPreviousWeek(currWeek);
+  //   week--;
+  //   rebuildSchedule();
+  // } else {
+  //   alert("Can't go before start date!");
+  // }
 
 }
 
@@ -766,7 +793,7 @@ function getNextWeek(date){
   var resultDate = new Date(date.getTime());
   resultDate.setDate(date.getDate() + 7);
   if (onLastWeek(date)){
-    alert("Cannot go to a further week that does not exist!");
+    alert("Cannot go to a week that does not exist!");
     return date;
   }
   return resultDate;
@@ -774,10 +801,23 @@ function getNextWeek(date){
 
 function onLastWeek(date){
   // get lastDate and current week and compares
+  // console.log("lastweek:", date.toLocaleDateString(), lastDate.toLocaleDateString());
   for (var num = 0; num < 5; num++){
     var newDate = new Date(date.getTime());
     newDate.setDate(date.getDate() + num);
     if (isSameDate(newDate, lastDate)){
+      return true;
+    }
+  }
+  return false;
+}
+
+function onFirstWeek(date){
+  // gets firstdate and current week and compares
+  for (var num = 0; num < 5; num++){
+    var newDate = new Date(date.getTime());
+    newDate.setDate(date.getDate() + num);
+    if (isSameDate(newDate, firstDate)){
       return true;
     }
   }
@@ -797,6 +837,10 @@ function isSameDate(date1, date2){
 function getPreviousWeek(date){
   var resultDate = new Date(date.getTime());
   resultDate.setDate(date.getDate() - 7);
+  if (onFirstWeek(date)){
+    alert("Cannot go to a week that does not exist!");
+    return date;
+  }
   return resultDate;
 }
 
@@ -846,7 +890,6 @@ function authenticateOrganizer(){
 	request.send();
 }
 
-
 function toOrganizer(){
 	usertype = "organizer";
 	if (document.getElementById("reviewMode").style.display == "block"){
@@ -885,6 +928,60 @@ function deleteSchedule() {
 		// nothing
 	}
 }
+
+function validateExtendDates(){
+  // validate whether the dates are actually extended...
+  var startExtend = new Date(document.getElementById("extendStartDate").value);
+	var endExtend = new Date(document.getElementById("extendEndDate").value);
+
+  if (startExtend <= firstDate) {
+    console.log("Extending Start date");
+    firstDate = startExtend;
+    var a = extendDates(true, startExtend.toISOString());
+  } else {
+    alert("Start date should be extended!");
+    return false;
+  }
+
+  if (endExtend => endDate) {
+    console.log("Extending End date");
+    lastDate = endExtend;
+    var b = extendDates(false, endExtend.toISOString());
+  } else {
+    alert("End date should be extended!");
+    return false;
+  }
+
+  return a && b;
+
+}
+
+function extendDates(arg, new_date){
+  var obj = {"date": new_date, "hours": dayHours};
+  var extend_url;
+  if (arg) { // start
+    extend_url = url + scheduleid + "/start";
+  } else {
+    extend_url = url + scheduleid + "/end";
+  }
+
+  var request = new XMLHttpRequest();
+  request.responseType = "json";
+  request.open("POST", extend_url, true);
+  request.setRequestHeader('Authorization', secretcode);
+  request.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+
+  request.onload = function(){
+    var data = this.response;
+    console.log(data);
+  };
+
+  request.addEventListener("loadend", rebuildSchedule);
+  request.send(JSON.stringify(obj));
+
+  return false;
+}
+
 
 /*
 	Search Time Slots
