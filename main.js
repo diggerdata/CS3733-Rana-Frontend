@@ -757,13 +757,21 @@ function formatDate(date) {
 
 function previousWeek() {
   // TODO: implement previous week
-  if (week > 0) {
-    currWeek = getPreviousWeek(currWeek);
-    week--;
-    rebuildSchedule();
-  } else {
-    alert("Can't go before start date!");
+  var previousWeek = currWeek;
+  currWeek = getPreviousWeek(currWeek);
+  if (previousWeek == currWeek) {
+    console.log("Can't go to previous week!");
+    return;
   }
+  week--;
+  rebuildSchedule();
+  // if (week > 0) {
+  //   currWeek = getPreviousWeek(currWeek);
+  //   week--;
+  //   rebuildSchedule();
+  // } else {
+  //   alert("Can't go before start date!");
+  // }
 
 }
 
@@ -785,7 +793,7 @@ function getNextWeek(date){
   var resultDate = new Date(date.getTime());
   resultDate.setDate(date.getDate() + 7);
   if (onLastWeek(date)){
-    alert("Cannot go to a further week that does not exist!");
+    alert("Cannot go to a week that does not exist!");
     return date;
   }
   return resultDate;
@@ -793,10 +801,23 @@ function getNextWeek(date){
 
 function onLastWeek(date){
   // get lastDate and current week and compares
+  // console.log("lastweek:", date.toLocaleDateString(), lastDate.toLocaleDateString());
   for (var num = 0; num < 5; num++){
     var newDate = new Date(date.getTime());
     newDate.setDate(date.getDate() + num);
     if (isSameDate(newDate, lastDate)){
+      return true;
+    }
+  }
+  return false;
+}
+
+function onFirstWeek(date){
+  // gets firstdate and current week and compares
+  for (var num = 0; num < 5; num++){
+    var newDate = new Date(date.getTime());
+    newDate.setDate(date.getDate() + num);
+    if (isSameDate(newDate, firstDate)){
       return true;
     }
   }
@@ -816,6 +837,10 @@ function isSameDate(date1, date2){
 function getPreviousWeek(date){
   var resultDate = new Date(date.getTime());
   resultDate.setDate(date.getDate() - 7);
+  if (onFirstWeek(date)){
+    alert("Cannot go to a week that does not exist!");
+    return date;
+  }
   return resultDate;
 }
 
@@ -918,7 +943,6 @@ function validateExtendDates(){
     return false;
   }
 
-  console.log(endDate, endExtend);
   if (endExtend => endDate) {
     console.log("Extending End date");
     lastDate = endExtend;
@@ -940,7 +964,6 @@ function extendDates(arg, new_date){
   } else {
     extend_url = url + scheduleid + "/end";
   }
-  console.log(extend_url);
 
   var request = new XMLHttpRequest();
   request.responseType = "json";
@@ -951,7 +974,6 @@ function extendDates(arg, new_date){
   request.onload = function(){
     var data = this.response;
     console.log(data);
-
   };
 
   request.addEventListener("loadend", rebuildSchedule);
