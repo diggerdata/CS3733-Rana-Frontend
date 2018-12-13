@@ -6,6 +6,7 @@ var meetTSID;
 var secretcode = "";
 var usertype = ""; //organizer
 var maxRow; // gets the timeslots per day
+var dayHours; // gets the hours in a day
 
 var open = true; // determines if day or timeslot toggle is open or closed
 
@@ -234,7 +235,7 @@ function getSchedule(){
         starttime = data.start_time - timeoffset;
       }
 
-			var dayHours = endtime - starttime;
+			dayHours = endtime - starttime;
       console.log(dayHours);
 			var timeSlotsInHour = data.duration/60;
 			maxRow = dayHours/timeSlotsInHour;
@@ -864,7 +865,6 @@ function authenticateOrganizer(){
 	request.send();
 }
 
-
 function toOrganizer(){
 	usertype = "organizer";
 	if (document.getElementById("reviewMode").style.display == "block"){
@@ -903,6 +903,63 @@ function deleteSchedule() {
 		// nothing
 	}
 }
+
+function validateExtendDates(){
+  // validate whether the dates are actually extended...
+  var startExtend = new Date(document.getElementById("extendStartDate").value);
+	var endExtend = new Date(document.getElementById("extendEndDate").value);
+
+  if (startExtend <= firstDate) {
+    console.log("Extending Start date");
+    firstDate = startExtend;
+    var a = extendDates(true, startExtend.toISOString());
+  } else {
+    alert("Start date should be extended!");
+    return false;
+  }
+
+  console.log(endDate, endExtend);
+  if (endExtend => endDate) {
+    console.log("Extending End date");
+    lastDate = endExtend;
+    var b = extendDates(false, endExtend.toISOString());
+  } else {
+    alert("End date should be extended!");
+    return false;
+  }
+
+  return a && b;
+
+}
+
+function extendDates(arg, new_date){
+  var obj = {"date": new_date, "hours": dayHours};
+  var extend_url;
+  if (arg) { // start
+    extend_url = url + scheduleid + "/start";
+  } else {
+    extend_url = url + scheduleid + "/end";
+  }
+  console.log(extend_url);
+
+  var request = new XMLHttpRequest();
+  request.responseType = "json";
+  request.open("POST", extend_url, true);
+  request.setRequestHeader('Authorization', secretcode);
+  request.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+
+  request.onload = function(){
+    var data = this.response;
+    console.log(data);
+
+  };
+
+  request.addEventListener("loadend", rebuildSchedule);
+  request.send(JSON.stringify(obj));
+
+  return false;
+}
+
 
 /*
 	Search Time Slots
