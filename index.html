@@ -110,7 +110,7 @@
     margin: 2px;
   }
 
-  #organizer-view, #participant-view, #searchList, #createMode, #reviewMode, #sysadminMode, #meeting-legend{
+  #organizer-view, #participant-view, #searchList, #createMode, #reviewMode, #sysadminMode, #meeting-legend, #reportForm, #deleteForm{
     display: none;
   }
 
@@ -357,8 +357,8 @@
       	</div>
 
       	<div>
-  				Secret Code: <input type="text" name="secretCode" required disabled>
-  				<button type="button" onclick="" disabled>Login</button>
+  				Secret Code: <input type="text" name="secretCode" id="sysa-secretcode" required>
+  				<button type="button" onclick="testFunction()">Login</button>
       	</div>
       </div>
 

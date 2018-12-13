@@ -1,4 +1,5 @@
 var url = "https://wxasuozkgb.execute-api.us-east-2.amazonaws.com/dev/schedule/";
+var sysurl = "https://wxasuozkgb.execute-api.us-east-2.amazonaws.com/dev/sysadmin/";
 // var scheduleid = 20;
 // var secretcode = "nVOcXklPLV";
 var scheduleid;
@@ -14,8 +15,17 @@ var open = true; // determines if day or timeslot toggle is open or closed
 var week = 0;
 var firstDate, lastDate, currWeek;
 
+// hour offset
+var hourOffset = (new Date()).getTimezoneOffset()/60;
+
 function testFunction(){
   console.log("Test");
+  var testDate = new Date();
+  var a = fromLocalToISOFormat(testDate);
+  var b = fromISOToLocalFormat(a);
+  console.log(a);
+  console.log(b);
+  console.log(hourOffset);
 }
 
 // TODO:
@@ -116,8 +126,10 @@ function validateScheduleCreation() {
 	var endDate = new Date(e_date+"T"+e_time+":00:00.00");
 
 	// To UTC Time for Server
-	var utcStartDate = startDate.toISOString();
-	var utcEndDate = endDate.toISOString();
+	// var utcStartDate = startDate.toISOString();
+	// var utcEndDate = endDate.toISOString();
+  var utcStartDate = fromLocalToISOFormat(startDate);
+  var utcEndDate = fromLocalToISOFormat(endDate);
 
 	var formData = new FormData();
 	formData.append('name', schedulename);
@@ -188,7 +200,8 @@ function getSchedule(){
 	var request = new XMLHttpRequest();
 	var getWeekURL;
 	if (currWeek != null){
-		getWeekURL = url+scheduleid+'?week='+currWeek.toISOString();
+		// getWeekURL = url+scheduleid+'?week='+currWeek.toISOString();
+    getWeekURL = url+scheduleid+'?week='+fromLocalToISOFormat(currWeek);
 	} else {
 		getWeekURL = url+scheduleid; //+'?week='+currWeek.toISOString();
 	}
@@ -205,8 +218,10 @@ function getSchedule(){
       document.getElementById("review-scheduleName").innerHTML = data.name;
 
 			// get day of first time slot to determine where it gets placeholder
-			var startDay = (new Date(data.timeslots[0].start_date)).getDay(); // Mon = 1; Tue = 2; Wed = 3; Thur = 4; Fri = 5
-			var endDay = (new Date(data.timeslots[data.timeslots.length - 1].start_date)).getDay();
+			// var startDay = (new Date(data.timeslots[0].start_date)).getDay(); // Mon = 1; Tue = 2; Wed = 3; Thur = 4; Fri = 5
+			// var endDay = (new Date(data.timeslots[data.timeslots.length - 1].start_date)).getDay();
+      var startDay = (fromISOToLocalFormat(data.timeslots[0].start_date)).getDay();
+      var endDay = (fromISOToLocalFormat(data.timeslots[data.timeslots.length - 1].start_date)).getDay();
 
 			// Gets the start date and end date to figure out how to show other weeks
 			setScheduleWeekTracking(data.timeslots[0].start_date, data.end_date);
@@ -218,21 +233,20 @@ function getSchedule(){
       var colSlot = 0;
 
 			// Time slots per day
-      var timeoffset = (new Date()).getTimezoneOffset()/60;
       var endtime;
       var starttime;
 
       // convert end time and start time
-      if (data.end_time - timeoffset <= 0) {
-        endtime = 24 - (timeoffset - data.end_time);
+      if (data.end_time - hourOffset <= 0) {
+        endtime = 24 - (hourOffset - data.end_time);
       } else {
-        endtime = data.end_time - timeoffset
+        endtime = data.end_time - hourOffset
       }
 
-      if (data.start_time - timeoffset <= 0) {
-        starttime = 24 - (timeoffset - data.start_time);
+      if (data.start_time - hourOffset <= 0) {
+        starttime = 24 - (hourOffset - data.start_time);
       } else {
-        starttime = data.start_time - timeoffset;
+        starttime = data.start_time - hourOffset;
       }
 
 			dayHours = endtime - starttime;
@@ -246,7 +260,8 @@ function getSchedule(){
 						var row = calendarBody.insertRow(rowNum);
 						var cell = row.insertCell(colNum);
 
-						var slotTime = new Date(data.timeslots[colSlot].start_date);
+						// var slotTime = new Date(data.timeslots[colSlot].start_date);
+            var slotTime = fromISOToLocalFormat(data.timeslots[colSlot].start_date);
 
 						if (slotTime.getMinutes() == 0) {
 							cell.innerHTML = slotTime.getHours() +":"+ slotTime.getMinutes() +"0";
@@ -304,7 +319,8 @@ function getSchedule(){
 function refreshTable(){
   console.log("refreshing...");
   var request = new XMLHttpRequest();
-  var getWeekURL = url+scheduleid +'?week='+currWeek.toISOString();
+  // var getWeekURL = url+scheduleid +'?week='+currWeek.toISOString();
+  var getWeekURL = url+scheduleid +'?week='+fromLocalToISOFormat(currWeek);
 
   request.open('GET', getWeekURL, true);
 	request.onload = function () {
@@ -360,7 +376,7 @@ function rebuildSchedule(){
 
 	console.log("rebuilding...");
   var request = new XMLHttpRequest();
-  var getWeekURL = url+scheduleid +'?week='+currWeek.toISOString();
+  var getWeekURL = url+scheduleid +'?week='+fromLocalToISOFormat(currWeek);
 
   request.open('GET', getWeekURL, true);
 	request.onload = function () {
@@ -369,8 +385,10 @@ function rebuildSchedule(){
 
 		if (request.status >= 200 && request.status < 400) {
 			// get day of first time slot to determine where it gets placeholder
-	    var startDay = (new Date(data.timeslots[0].start_date)).getDay(); // Mon = 1; Tue = 2; Wed = 3; Thur = 4; Fri = 5
-	    var endDay = (new Date(data.timeslots[data.timeslots.length - 1].start_date)).getDay();
+	    // var startDay = (new Date(data.timeslots[0].start_date)).getDay(); // Mon = 1; Tue = 2; Wed = 3; Thur = 4; Fri = 5
+	    // var endDay = (new Date(data.timeslots[data.timeslots.length - 1].start_date)).getDay();
+      var startDay = (fromISOToLocalFormat(data.timeslots[0].start_date)).getDay();
+      var endDay = (fromISOToLocalFormat(data.timeslots[data.timeslots.length - 1].start_date)).getDay();
 
 			// traverse all of table and match IDs
 	    var calendarTable = document.getElementById("schedulerTable");
@@ -565,7 +583,8 @@ function getMeeting(){
 			pview.style.display = "block";
 			pusername.innerHTML = data.username;
       meetTSID = data.timeslot_id;
-			pmeetingslot.innerHTML = getMeetingString(new Date(data.start_date), data.duration);
+			// pmeetingslot.innerHTML = getMeetingString(new Date(data.start_date), data.duration);
+      pmeetingslot.innerHTML = getMeetingString(fromISOToLocalFormat(data.start_date), data.duration);
 		} else {
 			alert("Incorrect Secret Code or \nMeeting no longer exists");
 		}
@@ -646,11 +665,14 @@ function toggleDay(date){
 	var toggle_url = url + scheduleid + "/" + "timeslot/";
   date.setHours(0);
   date.setMinutes(0);
-	console.log("date at", date.toISOString())
+	// console.log("date at", date.toISOString());
+  console.log("date at", fromLocalToISOFormat(date));
 	if (open){
-		toggle_url = toggle_url + "open?day=" + date.toISOString();
+		// toggle_url = toggle_url + "open?day=" + date.toISOString();
+    toggle_url = toggle_url + "open?day=" + fromLocalToISOFormat(date);
 	} else {
-		toggle_url = toggle_url + "close?day=" + date.toISOString();
+		// toggle_url = toggle_url + "close?day=" + date.toISOString();
+    toggle_url = toggle_url + "close?day=" + fromLocalToISOFormat(date);
 	}
 
 	console.log("toggle day url: ", toggle_url);
@@ -673,11 +695,14 @@ function toggleTime(time){
   console.log(time);
   var request = new XMLHttpRequest();
 	var toggle_url = url + scheduleid + "/" + "timeslot/";
-	console.log("date at", time.toISOString());
+	// console.log("date at", time.toISOString());
+  console.log("date at", fromLocalToISOFormat(time));
 	if (open){
-		toggle_url = toggle_url + "open?time=" + time.toISOString();
+		// toggle_url = toggle_url + "open?time=" + time.toISOString();
+    toggle_url = toggle_url + "open?time=" + fromLocalToISOFormat(time);
 	} else {
-		toggle_url = toggle_url + "close?time=" + time.toISOString();
+		// toggle_url = toggle_url + "close?time=" + time.toISOString();
+    toggle_url = toggle_url + "close?time=" + fromLocalToISOFormat(time);
 	}
 
 	console.log("toggle time url: ", toggle_url);
@@ -727,8 +752,10 @@ function slotOptions(arg){
 */
 
 function setScheduleWeekTracking(start, end){
-  lastDate = new Date(end);
-  firstDate = new Date(start);
+  lastDate = fromISOToLocalFormat(end);
+  lastDate.setHours(0,0,0,0);
+  firstDate = fromISOToLocalFormat(start);
+  firstDate.setHours(0,0,0,0);
 
   // Add placeholders for extend Dates
   // console.log(firstDate.toLocaleDateString());
@@ -934,29 +961,44 @@ function validateExtendDates(){
   var startExtend = new Date(document.getElementById("extendStartDate").value);
 	var endExtend = new Date(document.getElementById("extendEndDate").value);
 
-  if (startExtend <= firstDate) {
+  // change the time so its not affected in the change
+  // console.log(startExtend, "||", endExtend);
+  startExtend.setHours(startExtend.getHours() + hourOffset);
+  endExtend.setHours(endExtend.getHours() + hourOffset);
+  // console.log(startExtend, "||", endExtend);
+
+  console.log(startExtend, "||", firstDate);
+  if (startExtend < firstDate) {
     console.log("Extending Start date");
     firstDate = startExtend;
-    var a = extendDates(true, startExtend.toISOString());
+    // var a = extendDates(true, startExtend.toISOString());
+    extendDates(true, fromLocalToISOFormat(startExtend));
   } else {
-    alert("Start date should be extended!");
-    return false;
+    if (startExtend > firstDate){
+      alert("Start date should be extended!");
+    }
   }
 
-  if (endExtend => endDate) {
+  console.log(endExtend, "||", lastDate);
+
+  if (endExtend > lastDate) {
     console.log("Extending End date");
     lastDate = endExtend;
-    var b = extendDates(false, endExtend.toISOString());
+    // var b = extendDates(false, endExtend.toISOString());
+    extendDates(false, fromLocalToISOFormat(endExtend));
   } else {
-    alert("End date should be extended!");
-    return false;
+    if (endExtend < lastDate){
+      alert("End date should be extended!");
+    }
+
   }
 
-  return a && b;
+  return false;
 
 }
 
 function extendDates(arg, new_date){
+  console.log(arg, new_date);
   var obj = {"date": new_date, "hours": dayHours};
   var extend_url;
   if (arg) { // start
@@ -1030,4 +1072,55 @@ function toParticipant(){
 	document.getElementById("newP-page").style.display = "none";
 	document.getElementById("returnP-page").style.display = "block";
 	document.getElementById("organizer-page").style.display = "none";
+}
+
+/*
+  Sys Admin Functions
+*/
+
+function authenticateSysAdmin(){
+  var sysasecretcode = document.getElementById("sysa-secretcode");
+  console.log("Authenticating SysAdmin...");
+  var request = new XMLHttpRequest();
+  var sys_url = sysurl+"authenticate";
+	console.log(sys_url);
+  request.open('GET', sys_url, true);
+	request.setRequestHeader('Authorization', sysasecretcode.value);
+	request.onload = function () {
+		var data = JSON.parse(this.response);
+		console.log(data);
+
+		if (request.status >= 200 && request.status < 400) {
+      toSysAdmin();
+		} else {
+			alert("Incorrect Secret Code!");
+		}
+
+	}
+
+	request.send();
+}
+
+function toSysAdmin(){
+
+}
+
+/*
+  Date functions
+*/
+
+function fromLocalToISOFormat(date) {
+  var transform_date = new Date(date.getTime());
+  transform_date.setHours(transform_date.getHours()-hourOffset);
+  return transform_date.toISOString();
+}
+
+function fromISOToLocalFormat(dateISO) {
+  var transform_date = new Date(dateISO);
+  transform_date.setHours(transform_date.getHours()+hourOffset);
+  return transform_date;
+}
+
+function compareDayDate(date1, date2){
+  return date1.getFullYear()
 }
