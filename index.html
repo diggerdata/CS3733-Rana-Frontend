@@ -110,10 +110,13 @@
     margin: 2px;
   }
 
-  #organizer-view, #participant-view, #searchList, #createMode, #reviewMode, #sysadminMode, #meeting-legend{
+  #organizer-view, #participant-view, #searchList, #createMode, #reviewMode, #sysadminMode, #meeting-legend, #scheduleList, #scheduleListOptions{
     display: none;
   }
 
+  #reportForm, #deleteForm {
+    visibility: hidden;
+  }
   #weekRange {
     align-content: center;
   }
@@ -270,7 +273,6 @@
           <h3>User Details</h3>
           Name: <input type="text" placeholder="John Smith" id="username">
           Email: <input type="email" placeholder="example@gmail.com" id="useremail">
-
           <div>
             <h4>Search for TimeSlots</h4>
             <button type="button" onclick="getAvailableTimeslots()" disabled>Find TimeSlots</button><br><br>
@@ -357,8 +359,8 @@
       	</div>
 
       	<div>
-  				Secret Code: <input type="text" name="secretCode" required disabled>
-  				<button type="button" onclick="" disabled>Login</button>
+  				Secret Code: <input type="text" name="secretCode" id="sysa-secretcode" required>
+  				<button type="button" onclick="authenticateSysAdmin()" id="sysa-login">Login</button>
       	</div>
       </div>
 
@@ -366,25 +368,20 @@
       <div class="container-inside">
         <div id="deleteForm">
           <h2>Delete Schedules</h2>
-    			<form name="deleteSchedulesForm">
-						Days Old: <input type="number" name="daysOldSchedule" disabled>
-						<button type="submit" disabled>Delete Schedules</button>
-    			</form>
+					Days Old: <input type="number" name="daysOldSchedule" id="daysOldSchedule">
+					<button onclick="deleteSchedules()" type="button">Delete Schedules</button>
+          <h4><span id="numDeletedSchedules"></span></h4>
     		</div>
       </div>
       <div class="container-inside">
         <div id="reportForm">
           <h2>Report Activity</h2>
-    			<form name="reportActivityForm">
-  					Hours: <input type="number" name="hoursCreatedSchedule" disabled>
-  					<button type="submit" disabled>Get Schedule List</button>
-    			</form>
+					Hours: <input type="number" name="hoursCreatedSchedule" id="hoursCreatedSchedule">
+					<button onclick="reportActivity()" type="button">Get Schedule List</button>
     		</div>
-
         <div id="scheduleList">
-          <!--
-          Create a table with X schedules created in past N hours
-          -->
+          <h4><span id="reportText"></span></h4>
+          <select id="scheduleListOptions"></select>
         </div>
 
       </div>
