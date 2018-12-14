@@ -1,7 +1,5 @@
 var url = "https://wxasuozkgb.execute-api.us-east-2.amazonaws.com/dev/schedule/";
 var sysurl = "https://wxasuozkgb.execute-api.us-east-2.amazonaws.com/dev/sysadmin";
-// var scheduleid = 20;
-// var secretcode = "nVOcXklPLV";
 var scheduleid;
 var meetTSID;
 var secretcode = "";
@@ -18,23 +16,6 @@ var starttime, endtime;
 
 // hour offset
 var hourOffset = (new Date()).getTimezoneOffset()/60;
-
-function testFunction(){
-  console.log("Test");
-  var testDate = new Date();
-  var a = fromLocalToISOFormat(testDate);
-  var b = fromISOToLocalFormat(a);
-  console.log(a);
-  console.log(b);
-  console.log(hourOffset);
-}
-
-// TODO:
-/*
-- Sys Admin delete schedules
-- Sys admin report Activity
-- Find time slots
-*/
 
 /*
 	View Functions
