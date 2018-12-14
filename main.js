@@ -30,12 +30,9 @@ function testFunction(){
 
 // TODO:
 /*
-- Toggle Day should be implemented perhaps without clicking on the schedule, but through input based
-- Sys Admin Authentication
 - Sys Admin delete schedules
 - Sys admin report Activity
 - Find time slots
-- Extend Dates
 */
 
 /*
@@ -1030,8 +1027,7 @@ function extendDates(arg, new_date){
 
 function removeOptions(selectbox){
     var i;
-    for(i = selectbox.options.length - 1 ; i >= 0 ; i--)
-    {
+    for(i = selectbox.options.length - 1 ; i >= 0 ; i--) {
         selectbox.remove(i);
     }
 }
@@ -1052,7 +1048,7 @@ function getAvailableTimeslots() {
   const limitingLength = 12;
   let arrayLength = dummyTimeSlotStrings.length;
   x.size = (arrayLength <= limitingLength) ? arrayLength : limitingLength;
-  for(i=0; i < dummyTimeSlotStrings.length; i++) {
+  for (i=0; i < dummyTimeSlotStrings.length; i++) {
     let option = document.createElement("option");
     option.text = dummyTimeSlotStrings[i];
     x.add(option);
@@ -1113,11 +1109,36 @@ function toSysAdmin(){
 }
 
 function deleteSchedules(){
-  var daysOld = document.getElementById("daysOldSchedule").value;
-  if (!daysOld.isInteger() || daysOld < 0) {
+  var daysOld = parseFloat(document.getElementById("daysOldSchedule").value);
+  if (!Number.isInteger(daysOld) || daysOld < 0) {
     alert("Input must be a positive integer!");
     return;
   }
+
+  console.log(" Deleting Schedules...");
+  var request = new XMLHttpRequest();
+  var sys_url = sysurl+"?days="+daysOld;
+	console.log(sys_url);
+  request.open('DELETE', sys_url, true);
+	request.setRequestHeader('Authorization', secretcode);
+	request.onload = function () {
+		var data = JSON.parse(this.response);
+		console.log(data);
+    if (request.status >= 200 && request.status < 400) {
+      var numDel = document.getElementById("numDeletedSchedules");
+      if (data.num_deleted == 0){
+        numDel.innerHTML = "There were no schedules to delete!";
+      } else {
+        numDel.innerHTML = data.num_deleted+" Schedules Deleted!";
+      }
+    } else {
+			alert("Error!");
+		}
+
+	}
+
+	request.send();
+
 
 }
 
@@ -1128,6 +1149,7 @@ function reportActivity(){
     return;
   }
 
+  document.getElementById("scheduleList").style.display = "block";
 
   console.log("Report Activity...");
   var request = new XMLHttpRequest();
@@ -1139,11 +1161,38 @@ function reportActivity(){
 		var data = JSON.parse(this.response);
 		console.log(data);
 
-		// if (request.status >= 200 && request.status < 400) {
-    //   toSysAdmin();
-		// } else {
-		// 	alert("Incorrect Secret Code!");
-		// }
+
+		if (request.status >= 200 && request.status < 400) {
+      var list = document.getElementById("scheduleListOptions");
+      if (list.style.display = "none") {
+        list.style.display = "block";
+      }
+
+      var reportText = document.getElementById("reportText");
+
+      removeOptions(list);
+      console.log(data.num_created);
+      if (data.num_created == 0){
+        list.style.display = "none";
+        reportText.innerHTML = "No schedules created in the last "+hours+" hours";
+        return;
+      }
+
+      reportText.innerHTML = "Format: Date | Schedule Name - Organizer";
+
+      var limitingLength = 12;
+      list.size = (data.num_created <= limitingLength) ? data.num_created : limitingLength;
+      for (i=0; i < data.num_created; i++) {
+        var option = document.createElement("option");
+        var created = (fromISOToLocalFormat(data.schedules[i].created)).toLocaleDateString();
+        var name = data.schedules[i].name;
+        var org = data.schedules[i].organizer;
+        option.text = created+" | "+name+" - "+org;
+        list.add(option);
+      }
+		} else {
+			alert("Error!");
+		}
 
 	}
 

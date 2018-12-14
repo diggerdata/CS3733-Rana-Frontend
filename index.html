@@ -110,7 +110,7 @@
     margin: 2px;
   }
 
-  #organizer-view, #participant-view, #searchList, #createMode, #reviewMode, #sysadminMode, #meeting-legend{
+  #organizer-view, #participant-view, #searchList, #createMode, #reviewMode, #sysadminMode, #meeting-legend, #scheduleList{
     display: none;
   }
 
@@ -273,7 +273,6 @@
           <h3>User Details</h3>
           Name: <input type="text" placeholder="John Smith" id="username">
           Email: <input type="email" placeholder="example@gmail.com" id="useremail">
-
           <div>
             <h4>Search for TimeSlots</h4>
             <button type="button" onclick="getAvailableTimeslots()" disabled>Find TimeSlots</button><br><br>
@@ -371,6 +370,7 @@
           <h2>Delete Schedules</h2>
 					Days Old: <input type="number" name="daysOldSchedule" id="daysOldSchedule">
 					<button onclick="deleteSchedules()" type="button">Delete Schedules</button>
+          <h4><span id="numDeletedSchedules"></span></h4>
     		</div>
       </div>
       <div class="container-inside">
@@ -379,11 +379,10 @@
 					Hours: <input type="number" name="hoursCreatedSchedule" id="hoursCreatedSchedule">
 					<button onclick="reportActivity()" type="button">Get Schedule List</button>
     		</div>
-
+        <br>
         <div id="scheduleList">
-          <!--
-          Create a table with X schedules created in past N hours
-          -->
+          <h4><span id="reportText"></span></h4>
+          <select id="scheduleListOptions"></select>
         </div>
 
       </div>
