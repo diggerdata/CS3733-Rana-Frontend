@@ -68,10 +68,13 @@ function validateScheduleCreation() {
 	var email = document.getElementById("userEmail").value;
 
   // Checks that dates are weekdays
-  // TODO: Verification to check that dates chosen are weekdays
+  // if (isDateWeekend(s_date) || isDateWeekend(e_date)){
+  //   alert("Dates cannot be in the weekend!");
+  //   return false;
+  // }
 
 	// changes time to 24 hr time
-	if (s_time_type == "PM" && s_time < 12) {
+	if ((s_time_type == "PM" && s_time < 12) || (s_time_type == "AM" && s_time == 12)) {
 		s_time = parseInt(s_time) + 12;
 	}
 
@@ -211,23 +214,24 @@ function getSchedule(){
       var colSlot = 0;
 
 			// Time slots per day
-      endtime;
       starttime;
 
       // convert end time and start time
-      if (data.end_time - hourOffset <= 0) {
-        endtime = 24 - (hourOffset - data.end_time);
-      } else {
-        endtime = data.end_time - hourOffset
-      }
+      // if (data.end_time - hourOffset <= 0) {
+      //   endtime = 24 - (hourOffset - data.end_time);
+      // } else {
+      //   endtime = data.end_time - hourOffset
+      // }
+      //
+      // if (data.start_time - hourOffset <= 0) {
+      //   starttime = 24 - (hourOffset - data.start_time);
+      // } else {
+      //   starttime = data.start_time - hourOffset;
+      // }
 
-      if (data.start_time - hourOffset <= 0) {
-        starttime = 24 - (hourOffset - data.start_time);
-      } else {
-        starttime = data.start_time - hourOffset;
-      }
+      console.log(starttime, endtime);
 
-			dayHours = endtime - starttime;
+			dayHours = Math.abs(endtime - starttime); // absolute value not necessary it endttime / starttime fixed in database
       console.log(dayHours);
 			var timeSlotsInHour = data.duration/60;
 			maxRow = dayHours/timeSlotsInHour;
@@ -731,6 +735,7 @@ function slotOptions(arg){
 */
 
 function setScheduleWeekTracking(start, end){
+  console.log("Set Schedule Week Tracking...");
   lastDate = fromISOToLocalFormat(end);
   lastDate.setHours(0,0,0,0);
   firstDate = fromISOToLocalFormat(start);
@@ -741,7 +746,8 @@ function setScheduleWeekTracking(start, end){
   document.getElementById("extendStartDate").value = formatDate(firstDate);
   document.getElementById("extendEndDate").value = formatDate(lastDate);
 
-  var a = new Date(start);
+
+  var a = new Date(firstDate.getTime());
   if (a.getDay() > 1){
     a.setDate(a.getDate() - (a.getDay() - 1)); // 1 is Monday
   }
@@ -752,7 +758,8 @@ function setScheduleWeekTracking(start, end){
 
 function previousWeek() {
   // TODO: implement previous week
-  var previousWeek = currWeek;
+  var previousWeek = new Date(currWeek.getTime());
+  // var previousWeek = currWeek;
   currWeek = getPreviousWeek(currWeek);
   if (previousWeek == currWeek) {
     console.log("Can't go to previous week!");
@@ -773,7 +780,8 @@ function previousWeek() {
 function nextWeek() {
   // TODO: implement next week
   // TODO: check if end date is in next week (get correct 'end' date)
-  var previousWeek = currWeek;
+  var previousWeek = new Date(currWeek.getTime());
+  // var previousWeek = currWeek;
   currWeek = getNextWeek(currWeek);
   if (previousWeek == currWeek) {
     console.log("Can't go to next week!");
@@ -853,7 +861,6 @@ function getWeekRange(){
 }
 
 function getWeekString(date){
-  // sketch soltion lol
   return date.toString().substring(4, 15);
 }
 
@@ -939,7 +946,6 @@ function validateExtendDates(){
   if (startExtend < firstDate) {
     console.log("Extending Start date");
     firstDate = startExtend;
-    // var a = extendDates(true, startExtend.toISOString());
     extendDates(true, fromLocalToISOFormat(startExtend));
   } else {
     if (startExtend > firstDate){
@@ -952,7 +958,6 @@ function validateExtendDates(){
   if (endExtend > lastDate) {
     console.log("Extending End date");
     lastDate = endExtend;
-    // var b = extendDates(false, endExtend.toISOString());
     extendDates(false, fromLocalToISOFormat(endExtend));
   } else {
     if (endExtend < lastDate){
@@ -971,7 +976,7 @@ function extendDates(arg, new_date){
   var extend_url;
   if (arg) { // start
     extend_url = url + scheduleid + "/start";
-  } else {
+  } else { // end
     extend_url = url + scheduleid + "/end";
   }
 
@@ -1304,4 +1309,12 @@ function formatDate(date) {
     if (day.length < 2) day = '0' + day;
 
     return [year, month, day].join('-');
+}
+
+function isDateOnWeekend(date){
+  var d = new Date(date.getTime());
+  if (d.getDay() == 0 || d.getDay() == 6){
+    return true;
+  }
+  return false;
 }
