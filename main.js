@@ -1164,12 +1164,7 @@ function reportActivity(){
 
 		if (request.status >= 200 && request.status < 400) {
       var list = document.getElementById("scheduleListOptions");
-      if (list.style.display = "none") {
-        list.style.display = "block";
-      }
-
       var reportText = document.getElementById("reportText");
-
       removeOptions(list);
       console.log(data.num_created);
       if (data.num_created == 0){
@@ -1178,7 +1173,12 @@ function reportActivity(){
         return;
       }
 
-      reportText.innerHTML = "Format: Date | Schedule Name - Organizer";
+      if (list.style.display = "none") {
+        list.style.display = "block";
+      }
+
+
+      reportText.innerHTML = "Created Date | Schedule Name - Organizer";
 
       var limitingLength = 12;
       list.size = (data.num_created <= limitingLength) ? data.num_created : limitingLength;
