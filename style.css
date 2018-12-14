@@ -47,7 +47,7 @@ table, th, td {
     flex-direction: row;
 }
 
-.container {   
+.container {
     justify-content: space-evenly;
     align-items: flex-start;
 }
@@ -66,7 +66,7 @@ table, th, td {
     justify-content: space-between;
 }
 
-.websiteTitle img {
+img {
     width: 5%;
 }
 
@@ -98,8 +98,12 @@ table, th, td {
     margin: 2px;
 }
 
-#organizer-view, #participant-view, #searchList, #createMode, #reviewMode, #sysadminMode, #meeting-legend{
+#organizer-view, #participant-view, #searchList, #createMode, #reviewMode, #sysadminMode, #meeting-legend, #scheduleList, #scheduleListOptions{
     display: none;
+}
+
+#reportForm, #deleteForm {
+  visibility: hidden;
 }
 
 #weekRange {
@@ -123,11 +127,14 @@ input[type=submit] {
     width: 100%;
     margin: 10px;
     background-color: #00e600;
-    color: whitesmoke;
+    /* color: whitesmoke; */
+    color: black;
     padding: 10px;
     border: none;
     border-radius: 5px;
     cursor: pointer;
+    /* text-shadow: 1px 1px whitesmoke; */
+    /* letter-spacing: 10px; */
 }
 
 input[type=submit]:hover {

@@ -4,6 +4,7 @@
 	<title>Rana Scheduler</title>
   <script src="main.js"></script>
   <link rel="stylesheet" type="text/css" href="style.css">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css" integrity="sha384-gfdkjb5BdAXd+lj+gudLWI+BXq4IuLW5IT+brZEZsLFm++aCMlF1V92rMkPaX4PP" crossorigin="anonymous">
 </head>
 
 <body onload="getView()">
@@ -105,11 +106,37 @@
   <!-- Review Schedule -->
   <div id ="reviewMode">
     <div class="container foreground">
+      <!-- Logins -->
+      <div class="container-inside container-small">
+
+        <div><h3><i class="fas fa-user"></i> User Login</h3></div>
+
+        <div class="user-view" id="organizer-page">
+          <h3> Organizer</h3>
+          <input type="text" placeholder="Secret Code" id="o-secretcode">
+          <button id="o-button" onclick="authenticateOrganizer()">Enter</button>
+          <br><br>
+
+
+        </div>
+
+        <div class="user-view" id="returnP-page">
+          <h3>Participant</h3>
+          <input id="p-secretcode" type="text" placeholder="Secret Code">
+          <button id="p-button" type="button" onclick="getMeeting()">Enter</button>
+
+
+        </div>
+
+        <div>
+          <br><br><button type="button" onclick="refreshTable()">Refresh Schedule</button>
+        </div>
+
+      </div>
       <!-- Schedule -->
       <div class="container-inside">
         <div>
-          <h2 id="review-scheduleName"></h2>
-          <!-- <h4>Organizer: </h4> -->
+          <h2><i class="far fa-calendar"></i> <span id="review-scheduleName"></span></h2>
         </div>
 
         <div class="schedule-button-container">
@@ -149,11 +176,11 @@
       <!-- Info -->
       <div class="container-inside container-small">
         <div class = "container-inside" id="newP-page">
-          <h3>User Details</h3>
+          <h3><i class="fas fa-users"></i> User Details</h3>
           Name: <input type="text" placeholder="John Smith" id="username">
           Email: <input type="email" placeholder="example@gmail.com" id="useremail">
           <div>
-            <h4>Search for TimeSlots</h4>
+            <h4><i class="fas fa-search"></i> Search for TimeSlots</h4>
             <p>To search for a timeslot, use <u>one or more</u> options<p>
             <button type="button" onclick="searchForTimeSlots()">Find TimeSlots</button><br><br> <!-- undisbaled if an option is selected -->
   					Year: <select id="yearSearch">
@@ -195,72 +222,51 @@
 
         </div>
 
-        <div class="user-view" id="organizer-page">
-          <h3>Organizer</h3>
-          <input type="text" placeholder="Secret Code" id="o-secretcode">
-          <button id="o-button" onclick="authenticateOrganizer()">Enter</button>
-          <br><br>
-          <div id="organizer-view">
-            <!-- <h3>Organizer View</h3> -->
-            <!-- <p>Hi <span id="organizer-username"></span></p> -->
-            <!-- <button onclick="">Edit</button>
-            <br><br> -->
+        <div id="organizer-view">
+          <div>
             <div>
-              <div>
-                <h4>Toggle Day and Times</h4>
-                <button type="button" id="openToggleButton" onclick="slotOptions(true)" disabled>Open</button>
-                <button type="button" id="closeToggleButton" onclick="slotOptions(false)">Close</button>
-              </div>
-              <br>
-              <form id="extendDatesFormID" name="extendDatesForm">
-                <fieldset>
-                  <legend>Extend Dates</legend>
-                  Start Date:<br> <input type="date" id="extendStartDate"><br>
-                  End Date:<br> <input type="date" id="extendEndDate"><br><br>
-                  <button type="submit" onclick="return validateExtendDates()">Extend</button>
-                </fieldset>
-              </form>
-              <br>
-              <button type="button" onclick="deleteSchedule()">Delete Schedule</button>
+              <h4>Toggle Day and Times</h4>
+              <button type="button" id="openToggleButton" onclick="slotOptions(true)" disabled>Open</button>
+              <button type="button" id="closeToggleButton" onclick="slotOptions(false)">Close</button>
             </div>
+            <br>
+            <form id="extendDatesFormID" name="extendDatesForm">
+              <fieldset>
+                <legend>Extend Dates</legend>
+                Start Date:<br> <input type="date" id="extendStartDate"><br>
+                End Date:<br> <input type="date" id="extendEndDate"><br><br>
+                <button type="submit" onclick="return validateExtendDates()">Extend</button>
+              </fieldset>
+            </form>
+            <br>
+            <button type="button" onclick="deleteSchedule()">Delete Schedule</button>
           </div>
-
         </div>
 
-        <div class="user-view" id="returnP-page">
-          <h3>Participant</h3>
-          <input id="p-secretcode" type="text" placeholder="Secret Code">
-          <button id="p-button" type="button" onclick="getMeeting()">Enter</button>
-
-          <div id="participant-view">
-            <!-- <h3>Participant View</h3> -->
-            <h4>Meeting:</h4>
-            <p>Hi <span id="participant-username"></span>!</p>
-            <p>You have a meeting on: <span id="meeting-timeslot"></span></p>
-            <button type="button" onclick="cancelPMeeting()">Cancel Meeting</button>
-          </div>
-
-        </div>
-
-        <div>
-          <br><br><button type="button" onclick="refreshTable()">Refresh Schedule</button>
+        <div id="participant-view">
+          <!-- <h3>Participant View</h3> -->
+          <h4>Meeting:</h4>
+          <p>Hi <span id="participant-username"></span>!</p>
+          <p>You have a meeting on: <span id="meeting-timeslot"></span></p>
+          <button type="button" onclick="cancelPMeeting()">Cancel Meeting</button>
         </div>
 
       </div>
+
     </div>
   </div>
 
   <!-- Sys Admin -->
   <div id="sysadminMode">
-    <div class="container">
+    <div class="container foreground">
       <!-- Login -->
       <div class="container-inside">
         <div>
-      		<h2>Sys Admin</h2>
+      		<h2><i class="fas fa-tools"></i> Sys Admin</h2>
       	</div>
 
       	<div>
-  				Secret Code: <input type="text" name="secretCode" id="sysa-secretcode" required>
+  				Secret Code: <input type="text" name="secretCode" id="sysa-secretcode" required><br><br>
   				<button type="button" onclick="authenticateSysAdmin()" id="sysa-login">Login</button>
       	</div>
       </div>
@@ -268,16 +274,16 @@
       <!-- Access -->
       <div class="container-inside">
         <div id="deleteForm">
-          <h2>Delete Schedules</h2>
-					Days Old: <input type="number" name="daysOldSchedule" id="daysOldSchedule">
+          <h2><i class="fas fa-trash"></i> Delete Schedules</h2>
+					Days Old: <input type="number" name="daysOldSchedule" id="daysOldSchedule"><br><br>
 					<button onclick="deleteSchedules()" type="button">Delete Schedules</button>
           <h4><span id="numDeletedSchedules"></span></h4>
     		</div>
       </div>
       <div class="container-inside">
         <div id="reportForm">
-          <h2>Report Activity</h2>
-					Hours: <input type="number" name="hoursCreatedSchedule" id="hoursCreatedSchedule">
+          <h2><i class="fas fa-book"></i> Report Activity</h2>
+					Hours: <input type="number" name="hoursCreatedSchedule" id="hoursCreatedSchedule"><br><br>
 					<button onclick="reportActivity()" type="button">Get Schedule List</button>
     		</div>
         <div id="scheduleList">
