@@ -1103,7 +1103,7 @@ function getAvailableTimeslots(data) {
     tsOptions.style.display = "block";
   }
   removeOptions(tsOptions);
-  var limitingLength = 12;
+  var limitingLength = 6;
   var tsLength = data.timeslots.length;
   tsOptions.size = (tsLength <= limitingLength) ? tsLength : limitingLength;
   for (i=0; i < tsLength; i++) {
