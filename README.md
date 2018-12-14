@@ -2,7 +2,9 @@
 Nick Benoit, Eamon Oldridge, Nathan Rosenberg, and Yil Verdeja
 
 ## Rana-Scheduler
-The [Rana-Scheduler](http://rana-scheduler.s3-website.us-east-2.amazonaws.com/) website uses one page for all its views. The main page is the create schedule view, while the review schedule view is determined by a schedule ID query.
+The [Rana-Scheduler](http://rana-scheduler.s3-website.us-east-2.amazonaws.com/) website uses one page for all its views. There are two major views:
+ - The main page is the create schedule view, which is also the landing page for our site
+ - The review schedule view is the secondary view, which is determined by a schedule ID query
 
 This is an example link that **will not work** where "scheduleID" is a number that represents an actual scheduleID
 http://rana-scheduler.s3-website.us-east-2.amazonaws.com/?scheduleID
@@ -15,7 +17,7 @@ In the create schedule view, an Organizer must enter the following information t
 4. A timeslot duration
 5. A username and email
 
-After successfully creating a schedule, the link is changed to reflect the unique ID of the newly created schedule. As shown in the example above, it appends a scheduleID to the end of the main link. The Organizer's view is then entered.
+Once they have entered the information and submitted it, the service will present a notification that the operation has succeeded or failed. After successfully creating a schedule, the link is changed to reflect the unique ID of the newly created schedule. As shown in the example above, it appends a scheduleID to the end of the main link. The 'Organizer's Review' view is then entered.
 
 ### Review Schedule
 By sharing the link provided after creating a schedule (*see example link above*), anyone with the link can enter and view the schedule.
@@ -28,29 +30,32 @@ On the right, the viewer will see multiple user options, including options to si
 
 Instead of refreshing the page, a user can click the *refresh schedule* button to refresh the schedule.
 
-#### Participant
-A Participant can create a meeting in any open slot. To do so, they must enter their user details, which includes a username and email to identify them. After selecting a slot on the schedule with their mouse, and successfully creating a meeting, they will be provided a secret code to access their meeting and cancel it if need be.
-
-A returning participant can view their meeting and cancel it if they enter their secret code in the input text provided.
-
 #### Organizer
-An Organizer can enter the Organizer view by using their secret code. The Organizer view contains an additional yellow slot color, indicating a slot that a Participant has scheduled a meeting in. It also contains the user's name. These slots will be colored grey in the Participant view, as it is not important for Participants to know who has scheduled meetings when.
+An Organizer can enter the Organizer view by using their secret code. It is also the view that is entered upon the successful creation of a schedule. The Organizer view contains an additional yellow slot color, indicating a slot that a Participant has scheduled a meeting in. It also contains the user's name. These slots will be colored grey in the Participant view, as it is not important for Participants to know who has scheduled meetings when.
 
-By clicking on an open slot or closed slot, the organizer can toggle their availability at that time. By clicking on a meeting, the organizer is prompted to cancel the meeting. After getting confirmation that the Organizer wants to cancel the meeting, the meeting will be deleted and the schedule will be updated to reflect the change.
+By clicking on an open slot or closed slot, the organizer can toggle their availability at that time. The Organizer can also change the availability of all time slots on a given day, or all time slots at a certain time, by clicking on that day or time in the view.
+
+The Organizer can cancel meetings that have been created by Participants by clicking on a meeting. The organizer will be prompted to confirm that they want to cancel the meeting. After getting confirmation, the meeting will be deleted and the schedule will be updated to reflect the change.
+
+#### Participant
+A Participant can create a meeting in any open time slot during a schedule that has been shared with them. To do so, they must enter their user details, which includes a username and email to identify them. After selecting a time slot on the schedule, and successfully creating a meeting, they will be provided a secret code to access their meeting and cancel it if they desire to at a later date.
+
+A returning participant can view their meeting and cancel it if they enter their secret code in the login area.
 
 ### SysAdmin Page
 Once entering the [SysAdmin](http://rana-scheduler.s3-website.us-east-2.amazonaws.com/?sysadmin) page, the user will be prompted to enter the secret code in order to access administrative details. The SysAdmin has the ability to review schedules created within a requested number of hours, or delete schedules older than an a requested date.
-
-### Disabled options
-All the disabled options are parts that have not been implemented yet and that are not required for the deliverable on the 12/10/2018 deadline.
 
 ## Step Summary
 Organizer:
 1. Enter main site
 2. Create schedule and save secret code
-3. Edit schedule
+3. Edit schedule if necessary by entering secret code
 4. Copy link and share to participants
 
 Participant:
-1. Enter review site provided by organizer
+1. Enter schedule review via link provided by organizer
 2. Create meeting and save secret code
+
+SysAdmin:
+1. Enter SysAdmin page with password
+2. Review system usage or delete old schedules
