@@ -68,10 +68,10 @@ function validateScheduleCreation() {
 	var email = document.getElementById("userEmail").value;
 
   // Checks that dates are weekdays
-  // if (isDateWeekend(s_date) || isDateWeekend(e_date)){
-  //   alert("Dates cannot be in the weekend!");
-  //   return false;
-  // }
+  if (isDateOnWeekend(fromISOToLocalFormat(s_date)) || isDateOnWeekend(fromISOToLocalFormat(e_date))){
+    alert("Dates cannot be in the weekend!");
+    return false;
+  }
 
 	// changes time to 24 hr time
 	if ((s_time_type == "PM" && s_time < 12) || (s_time_type == "AM" && s_time == 12)) {
@@ -739,11 +739,18 @@ function setScheduleWeekTracking(start, end){
   console.log("Set Schedule Week Tracking...");
   lastDate = fromISOToLocalFormat(end);
   lastDate.setHours(0,0,0,0);
+  // weekend check - sketch solution...
+  if (lastDate.getDay() == 6) lastDate.setDate(lastDate.getDate() - 1);
+  if (lastDate.getDay() == 0) lastDate.setDate(lastDate.getDate() - 2);
+
   firstDate = fromISOToLocalFormat(start);
   firstDate.setHours(0,0,0,0);
 
+  // weekend check - sketch solution..
+  if (firstDate.getDay() == 6) firstDate.setDate(firstDate.getDate() - 1);
+  if (firstDate.getDay() == 0) firstDate.setDate(firstDate.getDate() - 2);
+
   // Add placeholders for extend Dates
-  // console.log(firstDate.toLocaleDateString());
   document.getElementById("extendStartDate").value = formatDate(firstDate);
   document.getElementById("extendEndDate").value = formatDate(lastDate);
 
@@ -768,13 +775,6 @@ function previousWeek() {
   }
   week--;
   rebuildSchedule();
-  // if (week > 0) {
-  //   currWeek = getPreviousWeek(currWeek);
-  //   week--;
-  //   rebuildSchedule();
-  // } else {
-  //   alert("Can't go before start date!");
-  // }
 
 }
 
@@ -942,6 +942,11 @@ function validateExtendDates(){
   startExtend.setHours(startExtend.getHours() + hourOffset);
   endExtend.setHours(endExtend.getHours() + hourOffset);
   // console.log(startExtend, "||", endExtend);
+
+  if (isDateOnWeekend(startExtend) || isDateOnWeekend(endExtend)){
+    alert("Dates cannot be in the weekend!");
+    return false;
+  }
 
   console.log(startExtend, "||", firstDate);
   if (startExtend < firstDate) {
@@ -1125,7 +1130,7 @@ function fillHourSearchOption(){
   var hourList = document.getElementById("hourSearch");
   for (i = 0; i < dayHours; i++) {
     var option = document.createElement("option");
-    var time = starttime + i + hourOffset;
+    var time = starttime + i;
     option.text = time;
     option.value = time;
     hourList.add(option);
