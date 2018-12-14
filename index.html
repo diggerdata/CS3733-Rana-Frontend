@@ -152,24 +152,45 @@
           <h3>User Details</h3>
           Name: <input type="text" placeholder="John Smith" id="username">
           Email: <input type="email" placeholder="example@gmail.com" id="useremail">
-
           <div>
             <h4>Search for TimeSlots</h4>
-            <button type="button" onclick="getAvailableTimeslots()" disabled>Find TimeSlots</button><br><br>
-  					Year: <select id="yearSearch" disabled></select>
-  					Month: <select id="monthSearch" disabled></select>
-  					Weekday: <select id="weekdaySearch" disabled></select>
-  					Day: <select id="daySearch" disabled></select>
-  					Hour: <select id="hourSearch" disabled></select>
+            <p>To search for a timeslot, use <u>one or more</u> options<p>
+            <button type="button" onclick="searchForTimeSlots()">Find TimeSlots</button><br><br> <!-- undisbaled if an option is selected -->
+  					Year: <select id="yearSearch">
+              <option value="selectYear">--- Year ---</option>
+              <option value="2018">2018</option>
+              <option value="2019">2019</option>
+            </select><br><br>
+  					Month: <select id="monthSearch">
+              <option value="monthSearch">--- Month ---</option>
+              <option value="1">January</option>
+              <option value="2">February</option>
+              <option value="3">March</option>
+              <option value="4">April</option>
+              <option value="5">May</option>
+              <option value="6">June</option>
+              <option value="7">July</option>
+              <option value="8">August</option>
+              <option value="9">September</option>
+              <option value="10">October</option>
+              <option value="11">November</option>
+              <option value="12">December</option>
+            </select><br><br>
+  					Weekday: <select id="weekdaySearch">
+              <option value="weekdaySearch">--- Weekday ---</option>
+              <option value="1">Monday</option>
+              <option value="2">Tuesday</option>
+              <option value="3">Wednesday</option>
+              <option value="4">Thursday</option>
+              <option value="5">Friday</option>
+            </select><br><br>
+  					Day: <input type="date" id="daySearch"><br><br>
+  					Hour: <select id="hourSearch"><option value="hourSearch">--- Hour ---</option></select>
           </div>
 
-          <br>
-
           <div id="searchList">
-            <form name = "timeSlotList">
-    					<select id="timeSlotListOptions"></select>
-              <br><button type="button">Create Meeting</button>
-    				</form>
+  					<select id="timeSlotListOptions"></select>
+            <br><button type="button" onclick="createMeetingSearch()">Create Meeting</button>
           </div>
 
         </div>
@@ -185,12 +206,18 @@
             <!-- <button onclick="">Edit</button>
             <br><br> -->
             <div>
-              <form>
+              <div>
+                <h4>Toggle Day and Times</h4>
+                <button type="button" id="openToggleButton" onclick="slotOptions(true)" disabled>Open</button>
+                <button type="button" id="closeToggleButton" onclick="slotOptions(false)">Close</button>
+              </div>
+              <br>
+              <form id="extendDatesFormID" name="extendDatesForm">
                 <fieldset>
                   <legend>Extend Dates</legend>
-                  Start Date:<br> <input type="date" disabled><br>
-                  End Date:<br> <input type="date" disabled><br><br>
-                  <button type="submit" disabled>Extend</button>
+                  Start Date:<br> <input type="date" id="extendStartDate"><br>
+                  End Date:<br> <input type="date" id="extendEndDate"><br><br>
+                  <button type="submit" onclick="return validateExtendDates()">Extend</button>
                 </fieldset>
               </form>
               <br>
@@ -233,8 +260,8 @@
       	</div>
 
       	<div>
-  				Secret Code: <input type="text" name="secretCode" required disabled>
-  				<button type="button" onclick="" disabled>Login</button>
+  				Secret Code: <input type="text" name="secretCode" id="sysa-secretcode" required>
+  				<button type="button" onclick="authenticateSysAdmin()" id="sysa-login">Login</button>
       	</div>
       </div>
 
@@ -242,25 +269,20 @@
       <div class="container-inside">
         <div id="deleteForm">
           <h2>Delete Schedules</h2>
-    			<form name="deleteSchedulesForm">
-						Days Old: <input type="number" name="daysOldSchedule" disabled>
-						<button type="submit" disabled>Delete Schedules</button>
-    			</form>
+					Days Old: <input type="number" name="daysOldSchedule" id="daysOldSchedule">
+					<button onclick="deleteSchedules()" type="button">Delete Schedules</button>
+          <h4><span id="numDeletedSchedules"></span></h4>
     		</div>
       </div>
       <div class="container-inside">
         <div id="reportForm">
           <h2>Report Activity</h2>
-    			<form name="reportActivityForm">
-  					Hours: <input type="number" name="hoursCreatedSchedule" disabled>
-  					<button type="submit" disabled>Get Schedule List</button>
-    			</form>
+					Hours: <input type="number" name="hoursCreatedSchedule" id="hoursCreatedSchedule">
+					<button onclick="reportActivity()" type="button">Get Schedule List</button>
     		</div>
-
         <div id="scheduleList">
-          <!--
-          Create a table with X schedules created in past N hours
-          -->
+          <h4><span id="reportText"></span></h4>
+          <select id="scheduleListOptions"></select>
         </div>
 
       </div>

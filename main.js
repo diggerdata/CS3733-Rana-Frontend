@@ -1,29 +1,21 @@
 var url = "https://wxasuozkgb.execute-api.us-east-2.amazonaws.com/dev/schedule/";
-// var scheduleid = 20;
-// var secretcode = "nVOcXklPLV";
+var sysurl = "https://wxasuozkgb.execute-api.us-east-2.amazonaws.com/dev/sysadmin";
 var scheduleid;
 var meetTSID;
 var secretcode = "";
 var usertype = ""; //organizer
 var maxRow; // gets the timeslots per day
+var dayHours; // gets the hours in a day
+
+var open = true; // determines if day or timeslot toggle is open or closed
 
 // schedule week tracking
 var week = 0;
 var firstDate, lastDate, currWeek;
+var starttime, endtime;
 
-function testFunction(){
-  console.log("Test");
-}
-
-// TODO:
-/*
-- Toggle Day should be implemented perhaps without clicking on the schedule, but through input based
-- Sys Admin Authentication
-- Sys Admin delete schedules
-- Sys admin report Activity
-- Find time slots
-- Extend Dates
-*/
+// hour offset
+var hourOffset = (new Date()).getTimezoneOffset()/60;
 
 /*
 	View Functions
@@ -45,7 +37,6 @@ function getView(){
 		var isnum = /^\d+$/.test(scheduleid);
     if (scheduleid == "sysadmin"){
 			document.getElementById("sysadminMode").style.display = "block";
-			alert("In sys admin view!");
 		} else if (scheduleid == "" || !isnum) { // check ID existence
       alert("Can't view a schedule without a schedule ID!");
       window.location.href = "index.html";
@@ -113,8 +104,10 @@ function validateScheduleCreation() {
 	var endDate = new Date(e_date+"T"+e_time+":00:00.00");
 
 	// To UTC Time for Server
-	var utcStartDate = startDate.toISOString();
-	var utcEndDate = endDate.toISOString();
+	// var utcStartDate = startDate.toISOString();
+	// var utcEndDate = endDate.toISOString();
+  var utcStartDate = fromLocalToISOFormat(startDate);
+  var utcEndDate = fromLocalToISOFormat(endDate);
 
 	var formData = new FormData();
 	formData.append('name', schedulename);
@@ -185,7 +178,8 @@ function getSchedule(){
 	var request = new XMLHttpRequest();
 	var getWeekURL;
 	if (currWeek != null){
-		getWeekURL = url+scheduleid+'?week='+currWeek.toISOString();
+		// getWeekURL = url+scheduleid+'?week='+currWeek.toISOString();
+    getWeekURL = url+scheduleid+'?week='+fromLocalToISOFormat(currWeek);
 	} else {
 		getWeekURL = url+scheduleid; //+'?week='+currWeek.toISOString();
 	}
@@ -202,8 +196,10 @@ function getSchedule(){
       document.getElementById("review-scheduleName").innerHTML = data.name;
 
 			// get day of first time slot to determine where it gets placeholder
-			var startDay = (new Date(data.timeslots[0].start_date)).getDay(); // Mon = 1; Tue = 2; Wed = 3; Thur = 4; Fri = 5
-			var endDay = (new Date(data.timeslots[data.timeslots.length - 1].start_date)).getDay();
+			// var startDay = (new Date(data.timeslots[0].start_date)).getDay(); // Mon = 1; Tue = 2; Wed = 3; Thur = 4; Fri = 5
+			// var endDay = (new Date(data.timeslots[data.timeslots.length - 1].start_date)).getDay();
+      var startDay = (fromISOToLocalFormat(data.timeslots[0].start_date)).getDay();
+      var endDay = (fromISOToLocalFormat(data.timeslots[data.timeslots.length - 1].start_date)).getDay();
 
 			// Gets the start date and end date to figure out how to show other weeks
 			setScheduleWeekTracking(data.timeslots[0].start_date, data.end_date);
@@ -215,24 +211,23 @@ function getSchedule(){
       var colSlot = 0;
 
 			// Time slots per day
-      var timeoffset = (new Date()).getTimezoneOffset()/60;
-      var endtime;
-      var starttime;
+      endtime;
+      starttime;
 
       // convert end time and start time
-      if (data.end_time - timeoffset <= 0) {
-        endtime = 24 - (timeoffset - data.end_time);
+      if (data.end_time - hourOffset <= 0) {
+        endtime = 24 - (hourOffset - data.end_time);
       } else {
-        endtime = data.end_time - timeoffset
+        endtime = data.end_time - hourOffset
       }
 
-      if (data.start_time - timeoffset <= 0) {
-        starttime = 24 - (timeoffset - data.start_time);
+      if (data.start_time - hourOffset <= 0) {
+        starttime = 24 - (hourOffset - data.start_time);
       } else {
-        starttime = data.start_time - timeoffset;
+        starttime = data.start_time - hourOffset;
       }
 
-			var dayHours = endtime - starttime;
+			dayHours = endtime - starttime;
       console.log(dayHours);
 			var timeSlotsInHour = data.duration/60;
 			maxRow = dayHours/timeSlotsInHour;
@@ -243,7 +238,8 @@ function getSchedule(){
 						var row = calendarBody.insertRow(rowNum);
 						var cell = row.insertCell(colNum);
 
-						var slotTime = new Date(data.timeslots[colSlot].start_date);
+						// var slotTime = new Date(data.timeslots[colSlot].start_date);
+            var slotTime = fromISOToLocalFormat(data.timeslots[colSlot].start_date);
 
 						if (slotTime.getMinutes() == 0) {
 							cell.innerHTML = slotTime.getHours() +":"+ slotTime.getMinutes() +"0";
@@ -286,6 +282,7 @@ function getSchedule(){
 				}
 			}
 			tableFunction();
+      fillHourSearchOption();
 		} else {
 			alert("This schedule does not exist!");
 			window.location.href = "index.html";
@@ -301,7 +298,8 @@ function getSchedule(){
 function refreshTable(){
   console.log("refreshing...");
   var request = new XMLHttpRequest();
-  var getWeekURL = url+scheduleid +'?week='+currWeek.toISOString();
+  // var getWeekURL = url+scheduleid +'?week='+currWeek.toISOString();
+  var getWeekURL = url+scheduleid +'?week='+fromLocalToISOFormat(currWeek);
 
   request.open('GET', getWeekURL, true);
 	request.onload = function () {
@@ -357,7 +355,7 @@ function rebuildSchedule(){
 
 	console.log("rebuilding...");
   var request = new XMLHttpRequest();
-  var getWeekURL = url+scheduleid +'?week='+currWeek.toISOString();
+  var getWeekURL = url+scheduleid +'?week='+fromLocalToISOFormat(currWeek);
 
   request.open('GET', getWeekURL, true);
 	request.onload = function () {
@@ -366,8 +364,10 @@ function rebuildSchedule(){
 
 		if (request.status >= 200 && request.status < 400) {
 			// get day of first time slot to determine where it gets placeholder
-	    var startDay = (new Date(data.timeslots[0].start_date)).getDay(); // Mon = 1; Tue = 2; Wed = 3; Thur = 4; Fri = 5
-	    var endDay = (new Date(data.timeslots[data.timeslots.length - 1].start_date)).getDay();
+	    // var startDay = (new Date(data.timeslots[0].start_date)).getDay(); // Mon = 1; Tue = 2; Wed = 3; Thur = 4; Fri = 5
+	    // var endDay = (new Date(data.timeslots[data.timeslots.length - 1].start_date)).getDay();
+      var startDay = (fromISOToLocalFormat(data.timeslots[0].start_date)).getDay();
+      var endDay = (fromISOToLocalFormat(data.timeslots[data.timeslots.length - 1].start_date)).getDay();
 
 			// traverse all of table and match IDs
 	    var calendarTable = document.getElementById("schedulerTable");
@@ -454,6 +454,7 @@ function tableFunction(){
 				} else {
 					if (usertype == "organizer"){
 						var time = this.innerText;
+            console.log("time is", time);
 						toggleTime(timeToDate(time));
 					}
 				}
@@ -475,13 +476,7 @@ function selectSlot(cell, id){
 				toggle_date.setMonth(currWeek.getMonth());
 				toggle_date.setDate(currWeek.getDate() + num);
 				console.log("Date to toggle is", getWeekString(toggle_date));
-
-				// if () {
-				// 	toggleDay(toggle_date, false);
-				// } else if (){
-				// 	toggleDay(toggle_date, true);
-				// }
-				// toggleDay();
+        toggleDay(toggle_date);
 			}
 		} else if (cell.className == "meetingSlot"){
 			if (confirm("Are you sure you want to cancel meeting?")){
@@ -567,7 +562,8 @@ function getMeeting(){
 			pview.style.display = "block";
 			pusername.innerHTML = data.username;
       meetTSID = data.timeslot_id;
-			pmeetingslot.innerHTML = getMeetingString(new Date(data.start_date), data.duration);
+			// pmeetingslot.innerHTML = getMeetingString(new Date(data.start_date), data.duration);
+      pmeetingslot.innerHTML = getMeetingString(fromISOToLocalFormat(data.start_date), data.duration);
 		} else {
 			alert("Incorrect Secret Code or \nMeeting no longer exists");
 		}
@@ -643,14 +639,19 @@ function toggleSlot(open, id){
 	request.send();
 }
 
-function toggleDay(date, open){
+function toggleDay(date){
 	var request = new XMLHttpRequest();
 	var toggle_url = url + scheduleid + "/" + "timeslot/";
-	console.log("date at", date.toISOString())
+  date.setHours(0);
+  date.setMinutes(0);
+	// console.log("date at", date.toISOString());
+  console.log("date at", fromLocalToISOFormat(date));
 	if (open){
-		toggle_url = toggle_url + "open?day=" + date.toISOString();
+		// toggle_url = toggle_url + "open?day=" + date.toISOString();
+    toggle_url = toggle_url + "open?day=" + fromLocalToISOFormat(date);
 	} else {
-		toggle_url = toggle_url + "close?day=" + date.toISOString();
+		// toggle_url = toggle_url + "close?day=" + date.toISOString();
+    toggle_url = toggle_url + "close?day=" + fromLocalToISOFormat(date);
 	}
 
 	console.log("toggle day url: ", toggle_url);
@@ -670,7 +671,33 @@ function toggleDay(date, open){
 }
 
 function toggleTime(time){
-	console.log(time);
+  console.log(time);
+  var request = new XMLHttpRequest();
+	var toggle_url = url + scheduleid + "/" + "timeslot/";
+	// console.log("date at", time.toISOString());
+  console.log("date at", fromLocalToISOFormat(time));
+	if (open){
+		// toggle_url = toggle_url + "open?time=" + time.toISOString();
+    toggle_url = toggle_url + "open?time=" + fromLocalToISOFormat(time);
+	} else {
+		// toggle_url = toggle_url + "close?time=" + time.toISOString();
+    toggle_url = toggle_url + "close?time=" + fromLocalToISOFormat(time);
+	}
+
+	console.log("toggle time url: ", toggle_url);
+
+	request.responseType = "json";
+	request.open("POST", toggle_url, true);
+  request.setRequestHeader('Authorization', secretcode);
+	request.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+
+	request.onload = function(){
+    var data = this.response;
+    console.log(data);
+    refreshTable();
+	};
+
+	request.send();
 }
 
 function timeToDate(argTime){
@@ -683,13 +710,36 @@ function timeToDate(argTime){
 	return timeslot;
 }
 
+function slotOptions(arg){
+  var openButton = document.getElementById("openToggleButton");
+  var closeButton = document.getElementById("closeToggleButton");
+  if (arg){
+    open = true;
+    openButton.disabled = true;
+    closeButton.disabled = false;
+    console.log("open!");
+  } else {
+    open = false;
+    openButton.disabled = false;
+    closeButton.disabled = true;
+    console.log("closed!");
+  }
+}
+
 /*
 	Week Functions
 */
 
 function setScheduleWeekTracking(start, end){
-  lastDate = new Date(end);
-  firstDate = new Date(start);
+  lastDate = fromISOToLocalFormat(end);
+  lastDate.setHours(0,0,0,0);
+  firstDate = fromISOToLocalFormat(start);
+  firstDate.setHours(0,0,0,0);
+
+  // Add placeholders for extend Dates
+  // console.log(firstDate.toLocaleDateString());
+  document.getElementById("extendStartDate").value = formatDate(firstDate);
+  document.getElementById("extendEndDate").value = formatDate(lastDate);
 
   var a = new Date(start);
   if (a.getDay() > 1){
@@ -702,13 +752,21 @@ function setScheduleWeekTracking(start, end){
 
 function previousWeek() {
   // TODO: implement previous week
-  if (week > 0) {
-    currWeek = getPreviousWeek(currWeek);
-    week--;
-    rebuildSchedule();
-  } else {
-    alert("Can't go before start date!");
+  var previousWeek = currWeek;
+  currWeek = getPreviousWeek(currWeek);
+  if (previousWeek == currWeek) {
+    console.log("Can't go to previous week!");
+    return;
   }
+  week--;
+  rebuildSchedule();
+  // if (week > 0) {
+  //   currWeek = getPreviousWeek(currWeek);
+  //   week--;
+  //   rebuildSchedule();
+  // } else {
+  //   alert("Can't go before start date!");
+  // }
 
 }
 
@@ -730,7 +788,7 @@ function getNextWeek(date){
   var resultDate = new Date(date.getTime());
   resultDate.setDate(date.getDate() + 7);
   if (onLastWeek(date)){
-    alert("Cannot go to a further week that does not exist!");
+    alert("Cannot go to a week that does not exist!");
     return date;
   }
   return resultDate;
@@ -738,10 +796,23 @@ function getNextWeek(date){
 
 function onLastWeek(date){
   // get lastDate and current week and compares
+  // console.log("lastweek:", date.toLocaleDateString(), lastDate.toLocaleDateString());
   for (var num = 0; num < 5; num++){
     var newDate = new Date(date.getTime());
     newDate.setDate(date.getDate() + num);
     if (isSameDate(newDate, lastDate)){
+      return true;
+    }
+  }
+  return false;
+}
+
+function onFirstWeek(date){
+  // gets firstdate and current week and compares
+  for (var num = 0; num < 5; num++){
+    var newDate = new Date(date.getTime());
+    newDate.setDate(date.getDate() + num);
+    if (isSameDate(newDate, firstDate)){
       return true;
     }
   }
@@ -761,6 +832,10 @@ function isSameDate(date1, date2){
 function getPreviousWeek(date){
   var resultDate = new Date(date.getTime());
   resultDate.setDate(date.getDate() - 7);
+  if (onFirstWeek(date)){
+    alert("Cannot go to a week that does not exist!");
+    return date;
+  }
   return resultDate;
 }
 
@@ -810,7 +885,6 @@ function authenticateOrganizer(){
 	request.send();
 }
 
-
 function toOrganizer(){
 	usertype = "organizer";
 	if (document.getElementById("reviewMode").style.display == "block"){
@@ -850,41 +924,217 @@ function deleteSchedule() {
 	}
 }
 
+function validateExtendDates(){
+  // validate whether the dates are actually extended...
+  var startExtend = new Date(document.getElementById("extendStartDate").value);
+	var endExtend = new Date(document.getElementById("extendEndDate").value);
+
+  // change the time so its not affected in the change
+  // console.log(startExtend, "||", endExtend);
+  startExtend.setHours(startExtend.getHours() + hourOffset);
+  endExtend.setHours(endExtend.getHours() + hourOffset);
+  // console.log(startExtend, "||", endExtend);
+
+  console.log(startExtend, "||", firstDate);
+  if (startExtend < firstDate) {
+    console.log("Extending Start date");
+    firstDate = startExtend;
+    // var a = extendDates(true, startExtend.toISOString());
+    extendDates(true, fromLocalToISOFormat(startExtend));
+  } else {
+    if (startExtend > firstDate){
+      alert("Start date should be extended!");
+    }
+  }
+
+  console.log(endExtend, "||", lastDate);
+
+  if (endExtend > lastDate) {
+    console.log("Extending End date");
+    lastDate = endExtend;
+    // var b = extendDates(false, endExtend.toISOString());
+    extendDates(false, fromLocalToISOFormat(endExtend));
+  } else {
+    if (endExtend < lastDate){
+      alert("End date should be extended!");
+    }
+
+  }
+
+  return false;
+
+}
+
+function extendDates(arg, new_date){
+  console.log(arg, new_date);
+  var obj = {"date": new_date, "hours": dayHours};
+  var extend_url;
+  if (arg) { // start
+    extend_url = url + scheduleid + "/start";
+  } else {
+    extend_url = url + scheduleid + "/end";
+  }
+
+  var request = new XMLHttpRequest();
+  request.responseType = "json";
+  request.open("POST", extend_url, true);
+  request.setRequestHeader('Authorization', secretcode);
+  request.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+
+  request.onload = function(){
+    var data = this.response;
+    console.log(data);
+  };
+
+  request.addEventListener("loadend", rebuildSchedule);
+  request.send(JSON.stringify(obj));
+
+  return false;
+}
+
+
 /*
 	Search Time Slots
 */
 
 function removeOptions(selectbox){
     var i;
-    for(i = selectbox.options.length - 1 ; i >= 0 ; i--)
-    {
+    for(i = selectbox.options.length - 1 ; i >= 0 ; i--) {
         selectbox.remove(i);
     }
 }
 
-function getAvailableTimeslots() {
-	document.getElementById("searchList").style.display = "block";
-  // getAvailableTimeslots(year, month, weekday, day, hour)
-  // get timeslots THIS IS WHERE I NEED YOU NATHAN!
+function searchForTimeSlots(){
+  console.log("Timeslot Searching...");
+  var request = new XMLHttpRequest();
+  var oneAdded = false;
+  var search_url = url+scheduleid+"/timeslot";
+  var init = search_url;
 
-  let dummyTimeSlotStrings = ["slot 1", "slot 2", "slot 3", "slot 2","slot 2","slot 2","slot 2"];
-
-  // put them into the table
-  var x = document.getElementById("timeSlotListOptions");
-  if (x.style.display = "none") {
-    x.style.display = "block";
-  }
-  removeOptions(x);
-  const limitingLength = 12;
-  let arrayLength = dummyTimeSlotStrings.length;
-  x.size = (arrayLength <= limitingLength) ? arrayLength : limitingLength;
-  for(i=0; i < dummyTimeSlotStrings.length; i++) {
-    let option = document.createElement("option");
-    option.text = dummyTimeSlotStrings[i];
-    x.add(option);
+  // year search
+  var yearSearch = document.getElementById("yearSearch").value;
+  if (yearSearch != "selectYear") {
+    if (!oneAdded) {
+      search_url = search_url+"?year="+yearSearch;
+      oneAdded = true;
+    } else {
+      search_url = search_url+"&year="+yearSearch;
+    }
   }
 
-  // return array of timeslots
+  // month search
+  var monthSearch = document.getElementById("monthSearch").value;
+  if (monthSearch != "monthSearch") {
+    if (!oneAdded) {
+      search_url = search_url+"?month="+monthSearch;
+      oneAdded = true;
+    } else {
+      search_url = search_url+"&month="+monthSearch;
+    }
+  }
+
+  // weekday search
+  var weekdaySearch = document.getElementById("weekdaySearch").value;
+  if (weekdaySearch != "weekdaySearch") {
+    if (!oneAdded) {
+      search_url = search_url+"?weekday="+weekdaySearch;
+      oneAdded = true;
+    } else {
+      search_url = search_url+"&weekday="+weekdaySearch;
+    }
+  }
+
+  // day search
+  var daySearch = document.getElementById("daySearch").value;
+  if (daySearch) {
+    var ds = new Date(daySearch+"T00:00:00.00");
+    if (!oneAdded) {
+      search_url = search_url+"?day="+fromLocalToISOFormat(ds);
+      oneAdded = true;
+    } else {
+      search_url = search_url+"&day="+fromLocalToISOFormat(ds);
+    }
+  }
+
+  // hour search
+  var hourSearch = document.getElementById("hourSearch").value;
+  if (hourSearch != "hourSearch") {
+    if (!oneAdded) {
+      search_url = search_url+"?hour="+hourSearch;
+      oneAdded = true;
+    } else {
+      search_url = search_url+"&hour="+hourSearch;
+    }
+  }
+
+  console.log(search_url);
+
+  if (search_url == init) {
+    alert("Can't find time slots without any search inputs!");
+    document.getElementById("timeSlotListOptions").style.display = "none";
+    return;
+  }
+
+  request.open('GET', search_url, true);
+	request.onload = function () {
+		var data = JSON.parse(this.response);
+		console.log(data);
+
+		if (request.status >= 200 && request.status < 400) {
+      if(data.timeslots == 0){
+        document.getElementById("timeSlotListOptions").style.display = "none";
+        return;
+      }
+      document.getElementById("searchList").style.display = "block";
+      getAvailableTimeslots(data);
+		} else {
+			alert("error!");
+		}
+
+	}
+
+	request.send();
+}
+
+function getAvailableTimeslots(data) {
+
+  var tsOptions = document.getElementById("timeSlotListOptions");
+  if (tsOptions.style.display = "none") {
+    tsOptions.style.display = "block";
+  }
+  removeOptions(tsOptions);
+  var limitingLength = 12;
+  var tsLength = data.timeslots.length;
+  tsOptions.size = (tsLength <= limitingLength) ? tsLength : limitingLength;
+  for (i=0; i < tsLength; i++) {
+    var option = document.createElement("option");
+    var dateStr = fromISOToLocalFormat(data.timeslots[i].start_date).toLocaleString()+", "+data.timeslots[i].duration+" mins";
+    option.text = dateStr;
+    option.value = data.timeslots[i].id;
+    tsOptions.add(option);
+  }
+}
+
+function fillHourSearchOption(){
+  var hourList = document.getElementById("hourSearch");
+  for (i = 0; i < dayHours; i++) {
+    var option = document.createElement("option");
+    var time = starttime + i + hourOffset;
+    option.text = time;
+    option.value = time;
+    hourList.add(option);
+  }
+}
+
+function createMeetingSearch(){
+  var tsOptionID = parseInt(document.getElementById("timeSlotListOptions").value);
+  var username = document.getElementById("username").value;
+  var email = document.getElementById("useremail").value;
+  if (username == "" || email == ""){
+    alert("Please enter username and email to create a meeting");
+  } else if (tsOptionID >= 0){
+    createMeeting(username, email, tsOptionID);
+  }
 }
 
 /*
@@ -897,4 +1147,161 @@ function toParticipant(){
 	document.getElementById("newP-page").style.display = "none";
 	document.getElementById("returnP-page").style.display = "block";
 	document.getElementById("organizer-page").style.display = "none";
+}
+
+/*
+  Sys Admin Functions
+
+  DELETE: /sysadmin?days=
+  GET: /sysadmin?hours=
+
+*/
+
+function authenticateSysAdmin(){
+  var sysasecretcode = document.getElementById("sysa-secretcode");
+  console.log("Authenticating SysAdmin...");
+  var request = new XMLHttpRequest();
+  var sys_url = sysurl+"/authenticate";
+	console.log(sys_url);
+  request.open('GET', sys_url, true);
+	request.setRequestHeader('Authorization', sysasecretcode.value);
+	request.onload = function () {
+		var data = JSON.parse(this.response);
+		console.log(data);
+
+		if (request.status >= 200 && request.status < 400) {
+      toSysAdmin();
+		} else {
+			alert("Incorrect Secret Code!");
+		}
+
+	}
+
+	request.send();
+}
+
+function toSysAdmin(){
+  secretcode = document.getElementById("sysa-secretcode").value;
+  document.getElementById("sysa-secretcode").disabled = true;
+  document.getElementById("sysa-login").disabled = true;
+  document.getElementById("deleteForm").style.visibility = "visible";
+  document.getElementById("reportForm").style.visibility = "visible";
+}
+
+function deleteSchedules(){
+  var daysOld = parseFloat(document.getElementById("daysOldSchedule").value);
+  if (!Number.isInteger(daysOld) || daysOld < 0) {
+    alert("Input must be a positive integer!");
+    return;
+  }
+
+  console.log(" Deleting Schedules...");
+  var request = new XMLHttpRequest();
+  var sys_url = sysurl+"?days="+daysOld;
+	console.log(sys_url);
+  request.open('DELETE', sys_url, true);
+	request.setRequestHeader('Authorization', secretcode);
+	request.onload = function () {
+		var data = JSON.parse(this.response);
+		console.log(data);
+    if (request.status >= 200 && request.status < 400) {
+      var numDel = document.getElementById("numDeletedSchedules");
+      if (data.num_deleted == 0){
+        numDel.innerHTML = "There were no schedules to delete!";
+      } else {
+        numDel.innerHTML = data.num_deleted+" Schedules Deleted!";
+      }
+    } else {
+			alert("Error!");
+		}
+
+	}
+
+	request.send();
+
+
+}
+
+function reportActivity(){
+  var hours = parseFloat(document.getElementById("hoursCreatedSchedule").value);
+  if (!Number.isInteger(hours) || hours < 0) {
+    alert("Input must be a positive integer!");
+    return;
+  }
+
+  document.getElementById("scheduleList").style.display = "block";
+
+  console.log("Report Activity...");
+  var request = new XMLHttpRequest();
+  var sys_url = sysurl+"?hours="+hours;
+	console.log(sys_url);
+  request.open('GET', sys_url, true);
+	request.setRequestHeader('Authorization', secretcode);
+	request.onload = function () {
+		var data = JSON.parse(this.response);
+		console.log(data);
+
+
+		if (request.status >= 200 && request.status < 400) {
+      var list = document.getElementById("scheduleListOptions");
+      var reportText = document.getElementById("reportText");
+      removeOptions(list);
+      console.log(data.num_created);
+      if (data.num_created == 0){
+        list.style.display = "none";
+        reportText.innerHTML = "No schedules created in the last "+hours+" hours";
+        return;
+      }
+
+      if (list.style.display = "none") {
+        list.style.display = "block";
+      }
+
+
+      reportText.innerHTML = "Created Date | Schedule Name - Organizer";
+
+      var limitingLength = 12;
+      list.size = (data.num_created <= limitingLength) ? data.num_created : limitingLength;
+      for (i=0; i < data.num_created; i++) {
+        var option = document.createElement("option");
+        var created = (fromISOToLocalFormat(data.schedules[i].created)).toLocaleDateString();
+        var name = data.schedules[i].name;
+        var org = data.schedules[i].organizer;
+        option.text = created+" | "+name+" - "+org;
+        list.add(option);
+      }
+		} else {
+			alert("Error!");
+		}
+
+	}
+
+	request.send();
+}
+
+/*
+  Date functions
+*/
+
+function fromLocalToISOFormat(date) {
+  var transform_date = new Date(date.getTime());
+  transform_date.setHours(transform_date.getHours()-hourOffset);
+  return transform_date.toISOString();
+}
+
+function fromISOToLocalFormat(dateISO) {
+  var transform_date = new Date(dateISO);
+  transform_date.setHours(transform_date.getHours()+hourOffset);
+  return transform_date;
+}
+
+function formatDate(date) {
+    var month = '' + (date.getMonth() + 1),
+        day = '' + date.getDate(),
+        year = date.getFullYear();
+
+    if (month.length < 2) month = '0' + month;
+    if (day.length < 2) day = '0' + day;
+
+    return [year, month, day].join('-');
 }
