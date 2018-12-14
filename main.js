@@ -78,7 +78,7 @@ function validateScheduleCreation() {
 		s_time = parseInt(s_time) + 12;
 	}
 
-  if (e_time_type == "PM" && e_time < 12) {
+  if ((e_time_type == "PM" && e_time < 12) || (e_time_type == "AM" && e_time == 12)) {
 		e_time = parseInt(e_time) + 12;
 	}
 
@@ -214,7 +214,8 @@ function getSchedule(){
       var colSlot = 0;
 
 			// Time slots per day
-      starttime;
+      endtime = (data.end_time == 0) ? 24: data.end_time;
+      starttime = data.start_time;
 
       // convert end time and start time
       // if (data.end_time - hourOffset <= 0) {
