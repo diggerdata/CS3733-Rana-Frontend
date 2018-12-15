@@ -44,6 +44,8 @@ Finally, an organizer can also delete their own schedule. They will be prompted 
 #### Participant
 A Participant can create a meeting in any open time slot during a schedule that has been shared with them. To do so, they must enter their user details, which includes a username and email to identify them. After selecting a time slot on the schedule, and successfully creating a meeting, they will be provided a secret code to access their meeting and cancel it if they desire to at a later date.
 
+A Participant also has the ability to search for a specific timeslot by providing a year, month, weekday, date, and/or hour. After submitting the query, they will be provided with possible timeslots that fit within their requirements.
+
 A returning participant can view their meeting and cancel it if they enter their secret code in the login area.
 
 ### SysAdmin Page
