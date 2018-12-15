@@ -59,7 +59,7 @@ Organizer:
 Participant:
 1. Enter schedule review via link provided by organizer
 2. Create meeting and save secret code
-3. View meeting and/or cancel meeting
+3. View meeting and/or cancel meeting by entering secret code
 
 SysAdmin:
 1. Enter SysAdmin page with password
